@@ -1,15 +1,17 @@
 package com.ada.twitter.fragments;
 
 import android.databinding.DataBindingUtil;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.ada.twitter.R;
 import com.ada.twitter.databinding.FragmentAddTweetBinding;
@@ -24,6 +26,8 @@ public class AddTweetFragment extends DialogFragment {
     private FragmentAddTweetBinding binding;
     private OnFragmenAddTweetListener mListener;
     private Tweet mTweet;
+
+    private static final int MAX_BODY_LENGTH = 150;
 
     public AddTweetFragment() {
         // Required empty public constructor
@@ -65,20 +69,46 @@ public class AddTweetFragment extends DialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Button btnDone = binding.btnSave;
-        btnDone.setOnClickListener((v) -> {
-            mTweet.setBody(binding.etBody.getText().toString());
-            mListener.onSend(Parcels.wrap(mTweet));
-            dismiss();
+        setCoutenr(binding.etBody.length());
+
+        binding.etBody.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                setCoutenr(s.length());
+            }
         });
 
-        ImageButton btnCancel = binding.btnCancel;
-        btnCancel.setOnClickListener((v) -> {
+        binding.btnSave.setOnClickListener((v) -> {
+            if (binding.etBody.length() <= MAX_BODY_LENGTH) {
+                mTweet.setBody(binding.etBody.getText().toString());
+                mListener.onSend(Parcels.wrap(mTweet));
+                dismiss();
+            } else {
+                Toast.makeText(getContext(), "The Tweet is to long", Toast.LENGTH_LONG);
+            }
+        });
+
+        binding.btnCancel.setOnClickListener((v) -> {
             mTweet.setBody(binding.etBody.getText().toString());
             mListener.onDataChanged(Parcels.wrap(mTweet));
             dismiss();
         });
+    }
 
+    private void setCoutenr(int bodyLength) {
+        int counter = MAX_BODY_LENGTH - bodyLength;
+        binding.tvCounter.setText(String.valueOf(counter));
+        binding.tvCounter.setTextColor(counter >= 0 ? Color.BLACK : Color.RED);
+        binding.btnSave.setClickable(counter >= 0);
     }
 /*
     private View.OnClickListener getOnDoneListener() {

@@ -4,6 +4,7 @@
     <data>
         <variable name="tweet" type="com.ada.twitter.models.Tweet"/>
         <import type="com.ada.twitter.utils.AdapterUtils"/>
+        <import type="java.lang.String"/>
     </data>
 <FrameLayout
     android:layout_width="match_parent"
@@ -48,7 +49,8 @@
            android:layout_width="match_parent"
            android:layout_height="wrap_content"
            android:layout_below="@id/imProfilePicture"
-           android:lines="6"
+           android:inputType="textMultiLine"
+           android:lines="10"
            android:text="@{tweet.body}"
            tools:text="ble ble ble ble ble"/>
 
@@ -68,7 +70,18 @@
            android:layout_height="wrap_content"
            android:text="@string/button_label_tweet"
            android:layout_below="@id/etBody"
-           android:layout_centerHorizontal="true" />
+           android:layout_alignParentRight="true"
+           android:layout_alignParentEnd="true" />
+       <TextView
+           android:id="@+id/tvCounter"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_toLeftOf="@id/btnSave"
+           android:layout_toStartOf="@id/btnSave"
+           android:layout_alignBaseline="@id/btnSave"
+           android:text="@{String.valueOf(150 - tweet.body.length())}"
+           tools:text="000"
+           android:layout_marginRight="10dp" />
    </RelativeLayout>
 
 </FrameLayout>
