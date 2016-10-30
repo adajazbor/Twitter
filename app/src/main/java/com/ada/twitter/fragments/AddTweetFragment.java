@@ -30,7 +30,8 @@ public class AddTweetFragment extends DialogFragment {
     }
 
     public interface OnFragmenAddTweetListener {
-        void onDateChanged(Parcelable parcelable);
+        void onDataChanged(Parcelable parcelable);
+        void onSend(Parcelable parcelable);
     }
 
     //maybe we will need edit functionality in the future so it is better to send tweet
@@ -67,13 +68,14 @@ public class AddTweetFragment extends DialogFragment {
         Button btnDone = binding.btnSave;
         btnDone.setOnClickListener((v) -> {
             mTweet.setBody(binding.etBody.getText().toString());
-            mListener.onDateChanged(Parcels.wrap(mTweet));
+            mListener.onSend(Parcels.wrap(mTweet));
             dismiss();
         });
 
         ImageButton btnCancel = binding.btnCancel;
         btnCancel.setOnClickListener((v) -> {
             mTweet.setBody(binding.etBody.getText().toString());
+            mListener.onDataChanged(Parcels.wrap(mTweet));
             dismiss();
         });
 

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable name="currentUser" type="com.ada.twitter.models.User"/>
+    </data>
     <RelativeLayout
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/activity_timeline"
@@ -14,7 +17,7 @@
             layout="@layout/toolbar_main"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:title="News"/>
+            app:title="@{'@' + currentUser.screenName}"/>
 
         <android.support.v4.widget.SwipeRefreshLayout
             android:id="@+id/swipeContainer"

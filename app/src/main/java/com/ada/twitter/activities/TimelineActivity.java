@@ -3,6 +3,7 @@ package com.ada.twitter.activities;
 import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -48,7 +49,7 @@ public class TimelineActivity extends AppCompatActivity {
     private TwitterSearchParam mSearchParams = new TwitterSearchParam();
     private TwitterClient mClient;
 
-    private MenuItem miNewTweet;
+    private Tweet workInProgressTweet;
 
     private RecyclerView rvItems;
     private Toolbar toolbar;
@@ -66,7 +67,6 @@ public class TimelineActivity extends AppCompatActivity {
         setupToolbar();
 
         rvItems = binding.rvItems;
-        //lLayoutManager = new StaggeredGridLayoutManager(AdapterUtils.getColNm(this), StaggeredGridLayoutManager.VERTICAL);
         LinearLayoutManager lLayoutManager = new LinearLayoutManager(this);
         rvItems.setLayoutManager(lLayoutManager);
         rvItems.setAdapter(mAdapter);
@@ -124,8 +124,6 @@ public class TimelineActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu_timeline2, menu);
-
-        miNewTweet = menu.findItem(R.id.miNewTweet);
         //miClear.setVisible(false);\
 
         return super.onCreateOptionsMenu(menu);
@@ -146,6 +144,7 @@ public class TimelineActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
+    /*
     private void showAddDialog() {
         AddTweetFragment dialog = AddTweetFragment.newInstance((params) -> {
             Tweet tweet = Parcels.unwrap(params);
@@ -153,6 +152,25 @@ public class TimelineActivity extends AppCompatActivity {
             mAdapter.notifyDataSetChanged();
             sendTweet(tweet);
             ;}, mCurrentUser, null);
+        dialog.show(getSupportFragmentManager(), "fragment_add_tweet");
+    }
+     */
+    private void showAddDialog() {
+        AddTweetFragment dialog = AddTweetFragment.newInstance(new AddTweetFragment.OnFragmenAddTweetListener() {
+            @Override
+            public void onDataChanged(Parcelable parcelable) {
+                workInProgressTweet = Parcels.unwrap(parcelable);
+            }
+
+            @Override
+            public void onSend(Parcelable parcelable) {
+                Tweet tweet = Parcels.unwrap(parcelable);
+                mTwitts.add(0, tweet);
+                mAdapter.notifyDataSetChanged();
+                sendTweet(tweet);
+                workInProgressTweet = null;
+            }
+        }, mCurrentUser, workInProgressTweet);
         dialog.show(getSupportFragmentManager(), "fragment_add_tweet");
     }
 
@@ -237,6 +255,8 @@ public class TimelineActivity extends AppCompatActivity {
                 Log.d("CURRENT_USER", "ready to parse: " + responseString);
                 com.ada.twitter.network.model.twitter.User user = Utils.parseJSON(responseString, com.ada.twitter.network.model.twitter.User.class);
                 mCurrentUser = TwitterResponseToModel.twitterToUserModel(user);
+                binding.setCurrentUser(mCurrentUser);
+                binding.executePendingBindings();
                 Log.d("CURRENT_USER", "done");
             }
         });

@@ -41,7 +41,7 @@
            android:layout_below="@id/tvUserName"
            android:layout_toLeftOf="@id/imProfilePicture"
            android:layout_toStartOf="@id/imProfilePicture"
-           android:text="@{tweet.user.screenName}"
+           android:text="@{'@' + tweet.user.screenName}"
            tools:text="screenName"/>
        <EditText
            android:id="@+id/etBody"
