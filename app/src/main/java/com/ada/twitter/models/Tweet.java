@@ -4,12 +4,14 @@ import com.raizlabs.android.dbflow.annotation.Column;
 import com.raizlabs.android.dbflow.annotation.ForeignKey;
 import com.raizlabs.android.dbflow.annotation.PrimaryKey;
 import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import org.ocpsoft.prettytime.PrettyTime;
 import org.parceler.Parcel;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by ada on 10/28/16.
@@ -81,5 +83,9 @@ public class Tweet extends BaseModel {
 
     public String getCreatedFromNow() {
         return new PrettyTime().format(this.createdAt);
+    }
+
+    public static List<Tweet> getAll() {
+        return SQLite.select().from(Tweet.class).orderBy(Tweet_Table.id, false).queryList();
     }
 }

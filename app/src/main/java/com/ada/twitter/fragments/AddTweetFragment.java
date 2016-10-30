@@ -73,8 +73,8 @@ public class AddTweetFragment extends DialogFragment {
 
         ImageButton btnCancel = binding.btnCancel;
         btnCancel.setOnClickListener((v) -> {
-            dismiss();
             mTweet.setBody(binding.etBody.getText().toString());
+            dismiss();
         });
 
     }

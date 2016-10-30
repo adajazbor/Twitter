@@ -26,14 +26,15 @@ public class TwitterClient extends OAuthBaseClient {
 	public static final String REST_URL = "https://api.twitter.com/1.1";
 	public static final String REST_CALLBACK_URL = "oauth://cpadatwitter";
 
-	public static final String REST1_CONSUMER_KEY = "gnNtJsuRxuAaSscEZrasX5uAI";
-	public static final String REST1_CONSUMER_SECRET = "JEcOur7wC4tovkgQ7d1k8MWg5jGvBLWo42IUa7BLxa8LfEcd0z";
+	public static final String REST1_CONSUMER_KEY = "VkGqGdKUhqm4OwRJrTpS0pm6f";
+	public static final String REST1_CONSUMER_SECRET = "7Cszh56nuHEZ5hOY0T5n4vOUj8WiNINBLCDztAZgR93GkeFdWM";
 
-	public static final String REST2_CONSUMER_KEY = "dSuIDnjoR9bh2sLZ4hFLbAPMM";
-	public static final String REST2_CONSUMER_SECRET = "PVwOGO1pGqZa9MaURUdbknILkwwlkSx4OJprvFjnvEK186N55h";
+	public static final String REST2_CONSUMER_KEY = "xvFxsSAdwI6l0V4GDVKCJR8dm";
+	public static final String REST2_CONSUMER_SECRET = "dpqjuMXItnDoQehjjiQ8ZE9EsxkrAz2BYY2nrjK73KHgDnHavZ";
 
 	private static final String GET_TWITTER_TIMELINE = "/statuses/home_timeline.json";
 	private static final String GET_TWITTER_LOGGED_USER = "/account/verify_credentials.json";
+	private static final String POST_TWITTER_ADD_TWEET = "/statuses/update.json";
 
 	public TwitterClient(Context context) {
 		super(context, REST_API_CLASS, REST_URL, REST2_CONSUMER_KEY, REST2_CONSUMER_SECRET, REST_CALLBACK_URL);
@@ -46,6 +47,12 @@ public class TwitterClient extends OAuthBaseClient {
 
 	public void getLoggedUserInfo(TextHttpResponseHandler responseHandler) {
 		client.get(getApiUrl(GET_TWITTER_LOGGED_USER), responseHandler);
+	}
+
+	public void sendTweet(TextHttpResponseHandler responseHandler, String body) {
+		RequestParams rParams = new RequestParams();
+		rParams.put("status", body);
+		client.post(getApiUrl(POST_TWITTER_ADD_TWEET), rParams, responseHandler);
 	}
 
 	private RequestParams prepareParams(TwitterSearchParam params) {

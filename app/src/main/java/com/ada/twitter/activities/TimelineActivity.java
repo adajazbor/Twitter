@@ -1,6 +1,7 @@
 package com.ada.twitter.activities;
 
 import android.databinding.DataBindingUtil;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -26,11 +27,13 @@ import com.ada.twitter.network.model.twitter.Twitter;
 import com.ada.twitter.utils.EndlessRecycleViewScrollListener;
 import com.ada.twitter.utils.TwitterResponseToModel;
 import com.ada.twitter.utils.Utils;
+import com.annimon.stream.Stream;
 import com.loopj.android.http.TextHttpResponseHandler;
 
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
@@ -41,7 +44,6 @@ public class TimelineActivity extends AppCompatActivity {
     private User mCurrentUser;
     private TweetAdapter mAdapter;
     private EndlessRecycleViewScrollListener scrollListener;
-    private LinearLayoutManager lLayoutManager;
     private SwipeRefreshLayout swipeContainer;
     private TwitterSearchParam mSearchParams = new TwitterSearchParam();
     private TwitterClient mClient;
@@ -65,7 +67,7 @@ public class TimelineActivity extends AppCompatActivity {
 
         rvItems = binding.rvItems;
         //lLayoutManager = new StaggeredGridLayoutManager(AdapterUtils.getColNm(this), StaggeredGridLayoutManager.VERTICAL);
-        lLayoutManager = new LinearLayoutManager(this);
+        LinearLayoutManager lLayoutManager = new LinearLayoutManager(this);
         rvItems.setLayoutManager(lLayoutManager);
         rvItems.setAdapter(mAdapter);
         scrollListener = new EndlessRecycleViewScrollListener(lLayoutManager) {
@@ -80,6 +82,7 @@ public class TimelineActivity extends AppCompatActivity {
 
         swipeContainer = binding.swipeContainer;
         swipeContainer.setOnRefreshListener(() -> {
+            populateCurrentUser();
             readItems();
         });
         // Configure the refreshing colors
@@ -97,7 +100,7 @@ public class TimelineActivity extends AppCompatActivity {
                 new TweetAdapter.ItemArrayAdapterDelegate() {
                     @Override
                     public void onClick(int position) {
-                        /*TODO
+                        /*TODO Show details
                         Intent i = new Intent(TwittAdapter.this, ArticleActivity.class);
                         i.putExtra(Constants.PARAM_ITEM, Parcels.wrap(articles.get(position)));
                         startActivity(i);
@@ -148,6 +151,7 @@ public class TimelineActivity extends AppCompatActivity {
             Tweet tweet = Parcels.unwrap(params);
             mTwitts.add(0, tweet);
             mAdapter.notifyDataSetChanged();
+            sendTweet(tweet);
             ;}, mCurrentUser, null);
         dialog.show(getSupportFragmentManager(), "fragment_add_tweet");
     }
@@ -156,7 +160,7 @@ public class TimelineActivity extends AppCompatActivity {
     private boolean readItems(int page) {
         //TODO show progress bar
         mSearchParams.setPage(page);
-        mClient.getHomeTimeLine(getMovieListResponseHandler(page > 0), mSearchParams);
+        mClient.getHomeTimeLine(getTweetListResponseHandler(page > 0), mSearchParams);
         return true;
     }
 
@@ -164,15 +168,15 @@ public class TimelineActivity extends AppCompatActivity {
         return readItems(0);
     }
 
-    private TextHttpResponseHandler getMovieListResponseHandler(final boolean nextPage) {
+    private TextHttpResponseHandler getTweetListResponseHandler(final boolean nextPage) {
         return new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String res, Throwable throwable) {
                 if (!Utils.isOnline()) {
-                    Toast.makeText(TimelineActivity.this, R.string.network_connection_lost, Toast.LENGTH_LONG).show();
+                    Toast.makeText(TimelineActivity.this, R.string.error_network_connection_lost, Toast.LENGTH_LONG).show();
                 }
                 Log.e(TAG, "Cannot download data: " + res);
-                //TODO read from db
+                new ReadTweetsFromDBTask().execute();
                 swipeContainer.setRefreshing(false);
             }
 
@@ -189,21 +193,42 @@ public class TimelineActivity extends AppCompatActivity {
                     mTwitts.addAll(TwitterResponseToModel.twitterListToModelTweet(response));
                     mAdapter.notifyDataSetChanged();
                 } else {
-                    Toast.makeText(TimelineActivity.this, R.string.no_results_info, Toast.LENGTH_LONG);
+                    Toast.makeText(TimelineActivity.this, R.string.error_no_results_info, Toast.LENGTH_LONG);
                 }
                 //TODO hide progress bar
-                //TODO save in db
+                new SaveTweetsInDBTask().execute(mTwitts);
                 swipeContainer.setRefreshing(false);
             }
         };
+    }
+
+    private void sendTweet(Tweet tweet) {
+        mClient.sendTweet(new TextHttpResponseHandler() {
+            @Override
+            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.e("SEND_TWEETER", "Cannot save data: " + responseString);
+                Toast.makeText(TimelineActivity.this, R.string.error_not_saved, Toast.LENGTH_LONG);
+            }
+
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                Log.d("SEND_TWEETER", "ready to parse: " + responseString);
+                Twitter twitter = Utils.parseJSON(responseString, Twitter.class);
+                Tweet tweet = TwitterResponseToModel.twitterToModelTweet(twitter);
+                new SaveTweetsInDBTask().execute(Arrays.asList(tweet));
+                Log.d("SEND_TWEETER", "done");
+                Toast.makeText(TimelineActivity.this, R.string.info_saved, Toast.LENGTH_LONG);
+            }
+        }, tweet.getBody());
     }
 
     private void readCurrentUser() {
         mClient.getLoggedUserInfo(new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                Log.e("CURRENT_USER", "Cannot download data: " + responseString);
                 if (!Utils.isOnline()) {
-                    Toast.makeText(TimelineActivity.this, R.string.network_connection_lost, Toast.LENGTH_LONG).show();
+                    Toast.makeText(TimelineActivity.this, R.string.error_network_connection_lost, Toast.LENGTH_LONG).show();
                 }
             }
 
@@ -215,5 +240,41 @@ public class TimelineActivity extends AppCompatActivity {
                 Log.d("CURRENT_USER", "done");
             }
         });
+    }
+
+    //========== Tasks ============
+    private class SaveTweetsInDBTask extends AsyncTask<List<Tweet>, Void, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            //progressBar.setVisibility(ProgressBar.VISIBLE);
+        }
+
+        @Override
+        protected Void doInBackground(List<Tweet>... tweets) {
+            Stream.of(tweets[0]).forEach(t -> t.save());
+            return null;
+        }
+
+    }
+
+    private class ReadTweetsFromDBTask extends AsyncTask<Void, Void, List<Tweet>> {
+
+        @Override
+        protected void onPreExecute() {
+            //progressBar.setVisibility(ProgressBar.VISIBLE);
+        }
+
+        @Override
+        protected List<Tweet> doInBackground(Void... params) {
+            return Tweet.getAll();
+        }
+
+        @Override
+        protected void onPostExecute(List<Tweet> tweets) {
+            mTwitts.clear();
+            mTwitts.addAll(tweets);
+            mAdapter.notifyDataSetChanged();
+        }
     }
 }

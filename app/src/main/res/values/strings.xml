@@ -3,12 +3,14 @@
 
     <string name="app_name">AdaTwitter</string>
     <string name="login_label">Connect to Twitter</string>
-    <string name="network_connection_lost">Cannot retrieve twitts at this moment.</string>
-    <string name="no_results_info">No twitts to show</string>
+    <string name="error_network_connection_lost">Cannot retrieve twitts at this moment.</string>
+    <string name="error_no_results_info">No twitts to show</string>
+    <string name="error_not_saved">Unable to save a tweet</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="button_label_tweet">Tweet</string>
     <string name="button_label_cancel">Cancel</string>
+    <string name="info_saved">Tweet has been saved</string>
 
 </resources>
