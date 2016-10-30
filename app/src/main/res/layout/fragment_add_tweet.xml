@@ -1,0 +1,75 @@
+<layout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <data>
+        <variable name="tweet" type="com.ada.twitter.models.Tweet"/>
+        <import type="com.ada.twitter.utils.AdapterUtils"/>
+    </data>
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.ada.twitter.fragments.AddTweetFragment">
+
+   <RelativeLayout
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_margin="10dp">
+       <ImageView
+           android:id="@+id/imProfilePicture"
+           android:layout_width="60dp"
+           android:layout_height="60dp"
+           android:layout_alignParentTop="true"
+           android:layout_alignParentRight="true"
+           android:layout_alignParentEnd="true"
+           app:imageUrl="@{tweet.user.profileImageUrl}"
+           app:srcCompat="@drawable/cast_album_art_placeholder"
+           android:layout_marginLeft="5dp"
+           android:layout_marginStart="5dp" />
+       <TextView
+           android:id="@+id/tvUserName"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_alignParentTop="true"
+           android:layout_toLeftOf="@id/imProfilePicture"
+           android:layout_toStartOf="@id/imProfilePicture"
+           android:text="@{tweet.user.name}"
+           tools:text="User Name"/>
+       <TextView
+           android:id="@+id/tvScreenName"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_below="@id/tvUserName"
+           android:layout_toLeftOf="@id/imProfilePicture"
+           android:layout_toStartOf="@id/imProfilePicture"
+           android:text="@{tweet.user.screenName}"
+           tools:text="screenName"/>
+       <EditText
+           android:id="@+id/etBody"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_below="@id/imProfilePicture"
+           android:lines="6"
+           android:text="@{tweet.body}"
+           tools:text="ble ble ble ble ble"/>
+
+       <ImageButton
+           android:id="@+id/btnCancel"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="@string/button_label_cancel"
+           android:src="@android:drawable/ic_delete"
+           android:layout_alignParentTop="true"
+           android:layout_alignParentLeft="true"
+           android:layout_alignParentStart="true" />
+
+       <Button
+           android:id="@+id/btnSave"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:text="@string/button_label_tweet"
+           android:layout_below="@id/etBody"
+           android:layout_centerHorizontal="true" />
+   </RelativeLayout>
+
+</FrameLayout>
+    </layout>
