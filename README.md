@@ -52,11 +52,11 @@ The following **additional** features are implemented:
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
-<!--
-<img src='http://i.imgur.com/SsE82St.gifv' title='Video Walkthrough' width='' alt='Video Walkthrough' />
--->
-<iframe class="imgur-embed" width="100%" height="720" frameborder="0" src="http://i.imgur.com/SsE82St.gifv#embed"></iframe>
 
+<img src='https://www.dropbox.com/s/fulyje4iiehgtwk/osprey_retus_2gbMPI24.65-25ada10302016185436.gif?raw=1' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<!--
+<iframe class="imgur-embed" width="100%" height="720" frameborder="0" src="http://i.imgur.com/SsE82St.gifv#embed"></iframe>
+-->
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## Notes
