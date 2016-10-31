@@ -12,5 +12,8 @@
     <string name="button_label_tweet">Tweet</string>
     <string name="button_label_cancel">Cancel</string>
     <string name="info_saved">Tweet has been saved</string>
+    <string name="hint_body">What\'s happening?</string>
+    <string name="error_send_like">Unable to like/unlike tweet</string>
+    <string name="error_send_retweet">Unable to retweet/unretweet</string>
 
 </resources>

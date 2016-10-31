@@ -11,6 +11,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.ada.twitter.R;
@@ -27,7 +28,7 @@ public class AddTweetFragment extends DialogFragment {
     private OnFragmenAddTweetListener mListener;
     private Tweet mTweet;
 
-    private static final int MAX_BODY_LENGTH = 150;
+    private static final int MAX_BODY_LENGTH = 140;
 
     public AddTweetFragment() {
         // Required empty public constructor
@@ -62,6 +63,7 @@ public class AddTweetFragment extends DialogFragment {
         User user = Parcels.unwrap(getArguments().getParcelable(Constants.PARAM_USER));
         mTweet.setUser(user);
         binding.setTweet(mTweet);
+        binding.executePendingBindings();
         return binding.getRoot();
     }
 
@@ -69,7 +71,9 @@ public class AddTweetFragment extends DialogFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        setCoutenr(binding.etBody.length());
+        EditText et = binding.etBody;
+        setCoutenr(et.length());
+        et.setSelection(et.length());
 
         binding.etBody.addTextChangedListener(new TextWatcher() {
             @Override
@@ -78,7 +82,6 @@ public class AddTweetFragment extends DialogFragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
             }
 
             @Override
@@ -88,12 +91,13 @@ public class AddTweetFragment extends DialogFragment {
         });
 
         binding.btnSave.setOnClickListener((v) -> {
-            if (binding.etBody.length() <= MAX_BODY_LENGTH) {
+            int length = binding.etBody.length();
+            if (length <= MAX_BODY_LENGTH && length > 0) {
                 mTweet.setBody(binding.etBody.getText().toString());
                 mListener.onSend(Parcels.wrap(mTweet));
                 dismiss();
             } else {
-                Toast.makeText(getContext(), "The Tweet is to long", Toast.LENGTH_LONG);
+                Toast.makeText(getContext(), "The Tweet is to long", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -108,30 +112,7 @@ public class AddTweetFragment extends DialogFragment {
         int counter = MAX_BODY_LENGTH - bodyLength;
         binding.tvCounter.setText(String.valueOf(counter));
         binding.tvCounter.setTextColor(counter >= 0 ? Color.BLACK : Color.RED);
-        binding.btnSave.setClickable(counter >= 0);
+        binding.btnSave.setClickable(counter >= 0 && counter < MAX_BODY_LENGTH);
     }
-/*
-    private View.OnClickListener getOnDoneListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mTweet.setBody(binding.etBody.getText().toString());
-                mListener.onDateChanged(Parcels.wrap(mTweet));
-                dismiss();
-            }
-        };
-    }
-*/
-    /*
-    private View.OnClickListener getOnCancelListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mTweet.setBody(binding.etBody.getText().toString());
-                dismiss();
-            }
-        };
-    }
-    */
 
 }

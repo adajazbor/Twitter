@@ -17,7 +17,6 @@ import java.util.List;
 /**
  * Created by ada on 10/29/16.
  */
-
 public class TwitterResponseToModel {
 
     private static final String DATE_FORMAT = "EEE MMM dd hh:mm:ss Z yyyy";
@@ -35,6 +34,10 @@ public class TwitterResponseToModel {
         modelTweet.setBody(resTweet.getText());
         modelTweet.setCreatedAt(parseDate(resTweet.getCreatedAt()));
         modelTweet.setUser(twitterToUserModel(resTweet.getUser()));
+        modelTweet.setFavorited(resTweet.getFavorited());
+        modelTweet.setRetweeted(resTweet.getRetweeted());
+        modelTweet.setRetweetCount(resTweet.getRetweetCount());
+        modelTweet.setInReplyToStatusId(resTweet.getInReplyToStatusId());
         return modelTweet;
     }
 

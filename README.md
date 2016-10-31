@@ -1,8 +1,8 @@
-# Project 3 - *Name of App Here*
+# Project 3 - Ada Twitter
 
 **Name of your app** is an android app that allows a user to view his Twitter timeline and post a new tweet. The app utilizes [Twitter REST API](https://dev.twitter.com/rest/public).
 
-Time spent: 15 hours spent in total
+Time spent: 25 hours spent in total
 
 ## User Stories
 
@@ -21,12 +21,12 @@ The following **required** functionality is completed:
 
 The following **optional** features are implemented:
 
-* [ ] User can **see a counter with total number of characters left for tweet** on compose tweet page
-* [ ] User can **click a link within a tweet body** on tweet details view. The click will launch the web browser with relevant page opened.
+* [X] User can **see a counter with total number of characters left for tweet** on compose tweet page
+* [X] User can **click a link within a tweet body** on tweet details view. The click will launch the web browser with relevant page opened.
 * [X] User can **pull down to refresh tweets timeline**
 * [X] User can **open the twitter app offline and see last loaded tweets**. Persisted in SQLite tweets are refreshed on every application launch. While "live data" is displayed when app can get it from Twitter API, it is also saved for use in offline mode.
-* [ ] User can tap a tweet to **open a detailed tweet view**
-* [ ] User can **select "reply" from detail view to respond to a tweet**
+* [X] User can tap a tweet to **open a detailed tweet view**
+* [X] User can **select "reply" from detail view to respond to a tweet**
 * [ ] Improve the user interface and theme the app to feel "twitter branded"
 
 The following **bonus** features are implemented:
@@ -47,13 +47,16 @@ The following **bonus** features are implemented:
 The following **additional** features are implemented:
 
 * [X] Added lambdas
+* [X] AsycTask to save/read data from DB
 
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
 
-<img src='http://i.imgur.com/link/to/your/gif/file.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
-
+<img src='http://i.imgur.com/SsE82St.gifv' title='Video Walkthrough' width='' alt='Video Walkthrough' />
+<!--
+<iframe class="imgur-embed" width="100%" height="720" frameborder="0" src="http://i.imgur.com/SsE82St.gifv#embed"></iframe>
+-->
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## Notes

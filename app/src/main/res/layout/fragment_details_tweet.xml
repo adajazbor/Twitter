@@ -10,7 +10,7 @@
 <FrameLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.ada.twitter.fragments.AddTweetFragment">
+    tools:context="com.ada.twitter.fragments.DetailsTweetFragment">
 
    <RelativeLayout
        android:layout_width="match_parent"
@@ -60,7 +60,7 @@
                android:layout_marginRight="20dp"
                android:layout_marginEnd="20dp"
                android:layout_marginStart="20dp"
-               android:visibility="@{tweet.inReplyToStatusId != null ? View.VISIBLE : View.GONE}">
+               android:visibility="@{tweet.inReplyToStatus != null ? View.VISIBLE : View.GONE}">
 
                <ImageView
                    android:id="@+id/imInReplyProfilePicture"
@@ -97,19 +97,21 @@
                    android:layout_height="wrap_content"
                    android:layout_below="@id/imInReplyProfilePicture"
                    android:inputType="textMultiLine"
+                   android:autoLink="all"
                    android:text="@{tweet.inReplyToStatus.body}"
                    tools:text="InReply InReply ble ble ble ble ble"/>
        </RelativeLayout>
 
-       <EditText
+       <TextView
            android:id="@+id/etBody"
            android:layout_width="match_parent"
            android:layout_height="wrap_content"
            android:gravity="top"
            android:layout_below="@id/lInReplyToStatus"
            android:inputType="textMultiLine"
-           android:lines="5"
+           android:maxLines="10"
            android:text="@{tweet.body}"
+           android:autoLink="all"
            tools:text="ble ble ble ble ble"/>
 
        <ImageButton
@@ -121,28 +123,6 @@
            android:layout_alignParentTop="true"
            android:layout_alignParentLeft="true"
            android:layout_alignParentStart="true" />
-
-       <Button
-           android:id="@+id/btnSave"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:text="@string/button_label_tweet"
-           android:layout_below="@id/etBody"
-           android:layout_alignParentRight="true"
-           android:layout_alignParentEnd="true" />
-       <TextView
-           android:id="@+id/tvCounter"
-           android:layout_width="wrap_content"
-           android:layout_height="wrap_content"
-           android:layout_toLeftOf="@id/btnSave"
-           android:layout_toStartOf="@id/btnSave"
-           android:layout_alignBaseline="@id/btnSave"
-           tools:text="000"
-           android:hint="@string/hint_body"
-           android:layout_marginRight="10dp" />
-
-
-
    </RelativeLayout>
 
 

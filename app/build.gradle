@@ -47,12 +47,6 @@ def dbflow_version = "3.1.1"
 
 dependencies {
     compile fileTree(dir: 'libs', include: '*.jar')
-    // Picasso for remote image loading
-    //compile 'com.squareup.picasso:picasso:2.5.2'
-    //for image transformating
-    //compile 'jp.wasabeef:picasso-transformations:2.1.0'
-    //compile 'com.android.support:support-v4:19.1.0'
-    // Android Async Http for sending async network requests
     // DBFlow for simple persistence with an ORM
     apt "com.github.Raizlabs.DBFlow:dbflow-processor:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
@@ -75,4 +69,6 @@ dependencies {
     compile 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
     compile 'com.android.support:support-v4:23.4.0'
     apt 'org.parceler:parceler:1.1.1'
+    //hide toolbar when scrolling
+    compile 'com.android.support:design:23.4.0'
 }

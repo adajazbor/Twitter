@@ -64,7 +64,7 @@ public class Twitter {
     public Object inReplyToScreenName;
     @SerializedName("in_reply_to_status_id")
     @Expose
-    public Object inReplyToStatusId;
+    public Long inReplyToStatusId;
     @SerializedName("possibly_sensitive")
     @Expose
     public Boolean possiblySensitive;
@@ -221,11 +221,11 @@ public class Twitter {
         this.inReplyToScreenName = inReplyToScreenName;
     }
 
-    public Object getInReplyToStatusId() {
+    public Long getInReplyToStatusId() {
         return inReplyToStatusId;
     }
 
-    public void setInReplyToStatusId(Object inReplyToStatusId) {
+    public void setInReplyToStatusId(Long inReplyToStatusId) {
         this.inReplyToStatusId = inReplyToStatusId;
     }
 

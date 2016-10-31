@@ -19,7 +19,9 @@ import com.ada.twitter.R;
 import com.ada.twitter.RestApplication;
 import com.ada.twitter.adapters.TweetAdapter;
 import com.ada.twitter.databinding.ActivityTimelineBinding;
+import com.ada.twitter.databinding.ItemTweetBinding;
 import com.ada.twitter.fragments.AddTweetFragment;
+import com.ada.twitter.fragments.DetailsTweetFragment;
 import com.ada.twitter.models.Tweet;
 import com.ada.twitter.models.User;
 import com.ada.twitter.network.TwitterClient;
@@ -100,12 +102,63 @@ public class TimelineActivity extends AppCompatActivity {
                 new TweetAdapter.ItemArrayAdapterDelegate() {
                     @Override
                     public void onClick(int position) {
-                        /*TODO Show details
-                        Intent i = new Intent(TwittAdapter.this, ArticleActivity.class);
-                        i.putExtra(Constants.PARAM_ITEM, Parcels.wrap(articles.get(position)));
-                        startActivity(i);
-                        */
+                        showDetailDialog(mTwitts.get(position));
                     }
+
+                    @Override
+                    public void onLike(final int position, final ItemTweetBinding binding) {
+                        final String TAG = "SEND_LIKE";
+                        final Tweet tw = mTwitts.get(position);
+                        boolean currentStatus =  !Boolean.TRUE.equals(tw.getFavorited());
+                        Log.d(TAG, "try to " + currentStatus +" :" + tw.getId());
+                        mClient.likeTweet(new TextHttpResponseHandler() {
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                Log.e(TAG, "Unable to like/unlike tweet: " + throwable.getStackTrace());
+                                binding.btnLike.setImageResource(currentStatus ? R.drawable.ic_favorite_border_white_18dp: R.drawable.ic_favorite_white_18dp);
+                                Toast.makeText(TimelineActivity.this, R.string.error_send_like, Toast.LENGTH_LONG).show();
+                            }
+
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                                Log.d(TAG, "ready to parse: " + responseString);
+                                Tweet tweet = saveTwitterTweetResponseInDB(responseString, position);
+                                Log.d(TAG, "done");
+                            }
+                        }, tw.getId(), currentStatus);
+                    }
+
+                    @Override
+                    public void onReply(int position, final ItemTweetBinding binding) {
+                        //in_reply_to_status_id
+                        final String TAG = "PREPARE_TO_REPLY";
+                        final Tweet tw = mTwitts.get(position);
+                        showReplyDialog(tw);
+                    }
+
+                    @Override
+                    public void onRetweet(final int position, final ItemTweetBinding binding) {
+                        final String TAG = "SEND_RETWEET";
+                        final Tweet tw = mTwitts.get(position);
+                        boolean currentStatus =  !Boolean.TRUE.equals(tw.getRetweeted());
+                        Log.d(TAG, "try to " + currentStatus +" :" + tw.getId());
+                        mClient.retweet(new TextHttpResponseHandler() {
+                            @Override
+                            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                                Log.e(TAG, "Unable to un/retweet: " + throwable.getMessage());
+                                Toast.makeText(TimelineActivity.this, R.string.error_send_retweet, Toast.LENGTH_LONG).show();
+                                binding.btnLink.setImageResource(currentStatus ? R.drawable.ic_link_white_18dp : R.drawable.ic_link_black_18dp);
+                            }
+
+                            @Override
+                            public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                                Log.d(TAG, "ready to parse: " + responseString);
+                                Tweet tweet = saveTwitterTweetResponseInDB(responseString, position);
+                                Log.d(TAG, "done");
+                            }
+                        }, tw.getId(), currentStatus);
+                    }
+
                 });
         readItems();
     }
@@ -144,22 +197,23 @@ public class TimelineActivity extends AppCompatActivity {
                 return super.onOptionsItemSelected(item);
         }
     }
-    /*
-    private void showAddDialog() {
-        AddTweetFragment dialog = AddTweetFragment.newInstance((params) -> {
-            Tweet tweet = Parcels.unwrap(params);
-            mTwitts.add(0, tweet);
-            mAdapter.notifyDataSetChanged();
-            sendTweet(tweet);
-            ;}, mCurrentUser, null);
-        dialog.show(getSupportFragmentManager(), "fragment_add_tweet");
+
+    private void showReplyDialog(Tweet parentTweet) {
+        workInProgressTweet = new Tweet(parentTweet);
+        showAddDialog();
     }
-     */
+
     private void showAddDialog() {
         AddTweetFragment dialog = AddTweetFragment.newInstance(new AddTweetFragment.OnFragmenAddTweetListener() {
             @Override
             public void onDataChanged(Parcelable parcelable) {
-                workInProgressTweet = Parcels.unwrap(parcelable);
+                Tweet tw = Parcels.unwrap(parcelable);
+                //do not save reply to
+                if (tw.getInReplyToStatusId() == null) {
+                    workInProgressTweet = tw;
+                } else {
+                    workInProgressTweet = new Tweet();
+                }
             }
 
             @Override
@@ -174,7 +228,14 @@ public class TimelineActivity extends AppCompatActivity {
         dialog.show(getSupportFragmentManager(), "fragment_add_tweet");
     }
 
-    //==== data operations
+    private void showDetailDialog(Tweet tweet) {
+        DetailsTweetFragment dialog = DetailsTweetFragment.newInstance(new DetailsTweetFragment.OnFragmenDetailsTweetListener() {
+        }, tweet);
+        dialog.show(getSupportFragmentManager(), "fragment_details_tweet");
+    }
+
+    //==== data operations =========
+
     private boolean readItems(int page) {
         //TODO show progress bar
         mSearchParams.setPage(page);
@@ -187,13 +248,16 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     private TextHttpResponseHandler getTweetListResponseHandler(final boolean nextPage) {
+        final String TAG = "LOAD_TWEETS";
         return new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String res, Throwable throwable) {
                 if (!Utils.isOnline()) {
                     Toast.makeText(TimelineActivity.this, R.string.error_network_connection_lost, Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(TimelineActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                 }
-                Log.e(TAG, "Cannot download data: " + res);
+                Log.e(TAG, "Cannot download data: " + throwable.getMessage());
                 new ReadTweetsFromDBTask().execute();
                 swipeContainer.setRefreshing(false);
             }
@@ -211,7 +275,7 @@ public class TimelineActivity extends AppCompatActivity {
                     mTwitts.addAll(TwitterResponseToModel.twitterListToModelTweet(response));
                     mAdapter.notifyDataSetChanged();
                 } else {
-                    Toast.makeText(TimelineActivity.this, R.string.error_no_results_info, Toast.LENGTH_LONG);
+                    Toast.makeText(TimelineActivity.this, R.string.error_no_results_info, Toast.LENGTH_LONG).show();
                 }
                 //TODO hide progress bar
                 new SaveTweetsInDBTask().execute(mTwitts);
@@ -221,30 +285,30 @@ public class TimelineActivity extends AppCompatActivity {
     }
 
     private void sendTweet(Tweet tweet) {
+        final String TAG = "SEND_TWEET";
         mClient.sendTweet(new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Log.e("SEND_TWEETER", "Cannot save data: " + responseString);
-                Toast.makeText(TimelineActivity.this, R.string.error_not_saved, Toast.LENGTH_LONG);
+                Log.e(TAG, "Cannot save data: " + responseString);
+                Toast.makeText(TimelineActivity.this, R.string.error_not_saved, Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                Log.d("SEND_TWEETER", "ready to parse: " + responseString);
-                Twitter twitter = Utils.parseJSON(responseString, Twitter.class);
-                Tweet tweet = TwitterResponseToModel.twitterToModelTweet(twitter);
-                new SaveTweetsInDBTask().execute(Arrays.asList(tweet));
-                Log.d("SEND_TWEETER", "done");
-                Toast.makeText(TimelineActivity.this, R.string.info_saved, Toast.LENGTH_LONG);
+                Log.d(TAG, "ready to parse: " + responseString);
+                saveTwitterTweetResponseInDB(responseString);
+                Log.d(TAG, "done");
+                Toast.makeText(TimelineActivity.this, R.string.info_saved, Toast.LENGTH_LONG).show();
             }
         }, tweet.getBody());
     }
 
     private void readCurrentUser() {
+        final String TAG = "LOAD_CURRENT_USER";
         mClient.getLoggedUserInfo(new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Log.e("CURRENT_USER", "Cannot download data: " + responseString);
+                Log.e(TAG, "Cannot download data: " + responseString);
                 if (!Utils.isOnline()) {
                     Toast.makeText(TimelineActivity.this, R.string.error_network_connection_lost, Toast.LENGTH_LONG).show();
                 }
@@ -252,14 +316,28 @@ public class TimelineActivity extends AppCompatActivity {
 
             @Override
             public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                Log.d("CURRENT_USER", "ready to parse: " + responseString);
+                Log.d(TAG, "ready to parse: " + responseString);
                 com.ada.twitter.network.model.twitter.User user = Utils.parseJSON(responseString, com.ada.twitter.network.model.twitter.User.class);
                 mCurrentUser = TwitterResponseToModel.twitterToUserModel(user);
                 binding.setCurrentUser(mCurrentUser);
                 binding.executePendingBindings();
-                Log.d("CURRENT_USER", "done");
+                Log.d(TAG, "done");
             }
         });
+    }
+
+    private Tweet saveTwitterTweetResponseInDB(String responseString, int position) {
+        Tweet tweet = saveTwitterTweetResponseInDB(responseString);
+        mTwitts.set(position, tweet);
+        mAdapter.notifyDataSetChanged();
+        return tweet;
+    }
+
+    private Tweet saveTwitterTweetResponseInDB(String responseString) {
+        Twitter twitter = Utils.parseJSON(responseString, Twitter.class);
+        Tweet tweet = TwitterResponseToModel.twitterToModelTweet(twitter);
+        new SaveTweetsInDBTask().execute(Arrays.asList(tweet));
+        return tweet;
     }
 
     //========== Tasks ============
@@ -275,7 +353,6 @@ public class TimelineActivity extends AppCompatActivity {
             Stream.of(tweets[0]).forEach(t -> t.save());
             return null;
         }
-
     }
 
     private class ReadTweetsFromDBTask extends AsyncTask<Void, Void, List<Tweet>> {

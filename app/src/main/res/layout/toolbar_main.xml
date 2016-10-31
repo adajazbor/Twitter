@@ -1,5 +1,6 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable name="title" type="java.lang.String"/>
     </data>
@@ -11,6 +12,27 @@
         app:titleTextColor="@android:color/white"
         app:title="@{title ?? `News`}"
         android:background="@android:color/holo_blue_dark">
-    </android.support.v7.widget.Toolbar>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/imLogo"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/twitter_logo"
+                android:layout_alignParentLeft="true"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/imLogo"
+                android:layout_alignLeft="@id/imLogo"
+                android:text="@{title ?? `News`}"
+                tools:text="sss"
+                style="@style/toolBarFont"
+                android:layout_marginLeft="10dp"/>
+        </LinearLayout>
+        </android.support.v7.widget.Toolbar>
 
 </layout>

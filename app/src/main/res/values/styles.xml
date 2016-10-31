@@ -13,4 +13,17 @@
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
 
+    <style name="usernameTitleFont">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="bodyFont">
+    </style>
+
+    <style name="toolBarFont">
+        <item name="android:textStyle">bold|italic</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
 </resources>

@@ -36,9 +36,69 @@ public class Tweet extends BaseModel {
     @Column(name = "id_str")
     String idStr;
 
+    @Column(name = "retweet_count")
+    Integer retweetCount;
+
+    @Column(name = "retweeted")
+    Boolean retweeted;
+
+    @Column(name = "favorited")
+    Boolean favorited;
+
+    @Column(name = "in_reply_to_status_id")
+    Long inReplyToStatusId;
+
+    Tweet inReplyToStatus;
 
     public Tweet() {
         super();
+    }
+
+    public Tweet(Tweet parentTweet) {
+        this();
+        setInReplyToStatus(parentTweet);
+        setBody("@" + parentTweet.getUser().getScreenName());
+    }
+
+    public Long getInReplyToStatusId() {
+        return inReplyToStatusId;
+    }
+
+    public void setInReplyToStatusId(Long inReplyToStatusId) {
+        this.inReplyToStatusId = inReplyToStatusId;
+    }
+
+    public Tweet getInReplyToStatus() {
+        return inReplyToStatus;
+    }
+
+    public void setInReplyToStatus(Tweet inReplyToStatus) {
+        this.inReplyToStatus = inReplyToStatus;
+        this.inReplyToStatusId = inReplyToStatus.getId();
+    }
+
+    public Integer getRetweetCount() {
+        return retweetCount;
+    }
+
+    public void setRetweetCount(Integer retweetCount) {
+        this.retweetCount = retweetCount;
+    }
+
+    public Boolean getRetweeted() {
+        return retweeted;
+    }
+
+    public void setRetweeted(Boolean retweeted) {
+        this.retweeted = retweeted;
+    }
+
+    public Boolean getFavorited() {
+        return favorited;
+    }
+
+    public void setFavorited(Boolean favorited) {
+        this.favorited = favorited;
     }
 
     public String getIdStr() {

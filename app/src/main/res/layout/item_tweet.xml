@@ -7,6 +7,7 @@
         <import type="com.ada.twitter.utils.AdapterUtils"/>
     </data>
     <RelativeLayout
+        android:id="@+id/lTweet"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -33,7 +34,8 @@
             android:layout_toEndOf="@id/profilePicture"
             android:layout_alignParentTop="true"
             android:text="@{tweet.user.name}"
-            tools:text="name"/>
+            tools:text="name"
+            style="@style/usernameTitleFont"/>
 
         <TextView
             android:id="@+id/tvBody"
@@ -43,7 +45,9 @@
             android:layout_toEndOf="@id/profilePicture"
             android:layout_below="@id/tvUserName"
             android:text="@{tweet.body}"
-            tools:text="body"/>
+            android:autoLink="all"
+            tools:text="body"
+            style="@style/bodyFont"/>
 
         <TextView
             android:id="@+id/tvTime"
@@ -55,7 +59,49 @@
             android:text="@{tweet.createdFromNow}"
             tools:text="time"/>
 
+        <RelativeLayout
+            android:id="@+id/lButtons"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvBody"
+            android:layout_toRightOf="@id/profilePicture"
+            android:layout_toEndOf="@id/profilePicture"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="15dp">
+
+            <ImageButton
+                android:id="@+id/btnLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginLeft="15px"
+                android:layout_marginRight="15px"
+                android:src="@drawable/ic_link_white_18dp"/>
+            <ImageButton
+                android:id="@+id/btnReply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@id/btnLink"
+                android:src="@drawable/ic_reply_white_18dp"/>
+            <ImageButton
+                android:id="@+id/btnLike"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/btnLink"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/ic_favorite_border_white_18dp"/>
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_below="@id/lButtons"
+                android:background="@android:color/darker_gray"
+                />
 
     </RelativeLayout>
+
 
 </layout>
