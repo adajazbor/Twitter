@@ -24,6 +24,7 @@ public class TwitterClient extends OAuthBaseClient {
 	private static final String POST_TWITTER_UNLIKE_TWEET = "/favorites/destroy.json";
 	private static final String POST_TWITTER_RETWEET = "/statuses/retweet/%d.json";
 	private static final String POST_TWITTER_UNRETWEET = "/statuses/unretweet/%d.json";
+
 	public TwitterClient(Context context) {
 		super(context, REST_API_CLASS, REST_URL, REST1_CONSUMER_KEY, REST1_CONSUMER_SECRET, REST_CALLBACK_URL);
 	}
