@@ -33,6 +33,7 @@ public class TweetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         void onLike(int position, ItemTweetBinding binding);
         void onRetweet(int position, ItemTweetBinding binding);
         void onReply(int position, ItemTweetBinding binding);
+        void onProfilePictureClick(int position);
     }
 
     @Override
@@ -85,6 +86,7 @@ public class TweetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 binding.btnLink.setImageResource(currentStatus ? R.drawable.ic_link_white_18dp : R.drawable.ic_link_black_18dp);
             });
             binding.btnReply.setOnClickListener((v) -> mDelegate.onReply(getAdapterPosition(), binding));
+            binding.profilePicture.setOnClickListener(v -> mDelegate.onProfilePictureClick(getAdapterPosition()));
         }
     }
 }

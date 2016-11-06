@@ -27,6 +27,7 @@ public class TwitterClient extends OAuthBaseClient {
 	private static final String POST_TWITTER_UNLIKE_TWEET = "/favorites/destroy.json";
 	private static final String POST_TWITTER_RETWEET = "/statuses/retweet/%d.json";
 	private static final String POST_TWITTER_UNRETWEET = "/statuses/unretweet/%d.json";
+    private static final String USERS_SHOW = "/users/show.json?user_id=%d";
 
 	public TwitterClient(Context context) {
 		super(context, REST_API_CLASS, REST_URL, REST1_CONSUMER_KEY, REST1_CONSUMER_SECRET, REST_CALLBACK_URL);
@@ -56,13 +57,19 @@ public class TwitterClient extends OAuthBaseClient {
 		client.get(getApiUrl(GET_TWITTER_LOGGED_USER), responseHandler);
 	}
 
-	public void sendTweet(TextHttpResponseHandler responseHandler, String body) {
+	public void getUserInfo(TextHttpResponseHandler responseHandler, Long userId) {
 		RequestParams rParams = new RequestParams();
-		rParams.put("status", body);
-		client.post(getApiUrl(POST_TWITTER_ADD_TWEET), rParams, responseHandler);
+		rParams.put("user_id", userId);
+		client.post(getApiUrl(USERS_SHOW), rParams, responseHandler);
 	}
 
-	public void likeTweet(TextHttpResponseHandler responseHandler, Long id, boolean currentlyLike) {
+    public void sendTweet(TextHttpResponseHandler responseHandler, String body) {
+        RequestParams rParams = new RequestParams();
+        rParams.put("status", body);
+        client.post(getApiUrl(POST_TWITTER_ADD_TWEET), rParams, responseHandler);
+    }
+
+    public void likeTweet(TextHttpResponseHandler responseHandler, Long id, boolean currentlyLike) {
 		if (currentlyLike) {
 			likeTweet(responseHandler, id);
 		} else {

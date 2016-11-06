@@ -28,6 +28,15 @@ public class User extends BaseModel {
     @Column(name = "profile_name_url")
     String profileImageUrl;
 
+    @Column
+    String description;
+
+    @Column
+    Integer followersCount;
+
+    @Column
+    Integer friendsCount;
+
     public Long getId() {
         return id;
     }
@@ -58,5 +67,29 @@ public class User extends BaseModel {
 
     public void setProfileImageUrl(String profileImageUrl) {
         this.profileImageUrl = profileImageUrl;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Integer getFollowersCount() {
+        return followersCount;
+    }
+
+    public void setFollowersCount(Integer followersCount) {
+        this.followersCount = followersCount;
+    }
+
+    public Integer getFriendsCount() {
+        return friendsCount;
+    }
+
+    public void setFriendsCount(Integer friendsCount) {
+        this.friendsCount = friendsCount;
     }
 }

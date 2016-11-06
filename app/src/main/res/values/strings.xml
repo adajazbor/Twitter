@@ -8,12 +8,15 @@
     <string name="error_not_saved">Unable to save a tweet</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="button_label_tweet">Tweet</string>
     <string name="button_label_cancel">Cancel</string>
     <string name="info_saved">Tweet has been saved</string>
     <string name="hint_body">What\'s happening?</string>
     <string name="error_send_like">Unable to like/unlike tweet</string>
     <string name="error_send_retweet">Unable to retweet/unretweet</string>
+    <string name="followers">Followers</string>
+    <string name="friends">Following</string>
+    <string name="downloading_user_data">Downloading user data ...</string>
+    <string name="downloading_user_data_error">Cannot retrieve user data at this moment.</string>
 
 </resources>

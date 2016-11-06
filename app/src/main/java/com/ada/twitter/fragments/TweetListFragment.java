@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.ada.twitter.R;
+import com.ada.twitter.activities.UserInfoActivity;
 import com.ada.twitter.adapters.TweetAdapter;
 import com.ada.twitter.databinding.ItemTweetBinding;
 import com.ada.twitter.models.Tweet;
@@ -158,6 +159,10 @@ public abstract class TweetListFragment extends Fragment {
                         }, tw.getId(), currentStatus);
                     }
 
+                    @Override
+                    public void onProfilePictureClick(int position) {
+                        UserInfoActivity.startActivity(getActivity(), mTwitts.get(position).getUser());
+                    }
                 });
         readItems();
     }
@@ -237,14 +242,15 @@ public abstract class TweetListFragment extends Fragment {
                 Log.d(TAG, "res to model done:" + (response == null ? "EMPTY" : response.size()));
                 if (response != null && response.size() > 0) {
                     mSearchParams.setMaxId(response.get(response.size() -1).getId());
-                    mTwitts.addAll(TwitterResponseToModel.twitterListToModelTweet(response));
+                    List<Tweet> newTweets = TwitterResponseToModel.twitterListToModelTweet(response);
+                    mTwitts.addAll(newTweets);
                     mAdapter.notifyDataSetChanged();
+                    new SaveTweetsInDBTask().execute(newTweets);
                 } else {
                     Toast.makeText(getActivity(), R.string.error_no_results_info, Toast.LENGTH_LONG).show();
                 }
-                //TODO hide progress bar
-                new SaveTweetsInDBTask().execute(mTwitts);
                 swipeContainer.setRefreshing(false);
+                //TODO hide progress bar
             }
         };
     }

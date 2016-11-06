@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.ada.twitter.R;
@@ -138,6 +139,10 @@ public class MainActivity extends AppCompatActivity implements TweetListFragment
                 com.ada.twitter.network.model.twitter.User user = Utils.parseJSON(responseString, com.ada.twitter.network.model.twitter.User.class);
                 mCurrentUser = TwitterResponseToModel.twitterToUserModel(user);
                 binding.setCurrentUser(mCurrentUser);
+                View.OnClickListener userDetailsOpenListener =
+                        v -> UserInfoActivity.startActivity(MainActivity.this, mCurrentUser);
+                binding.includedToolbar.imLogo.setOnClickListener(userDetailsOpenListener);
+                binding.includedToolbar.imText.setOnClickListener(userDetailsOpenListener);
                 binding.executePendingBindings();
                 Log.d(TAG, "done");
             }

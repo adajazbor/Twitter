@@ -24,6 +24,7 @@
                 android:src="@drawable/twitter_logo"
                 android:layout_alignParentLeft="true"/>
             <TextView
+                android:id="@+id/imText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@id/imLogo"

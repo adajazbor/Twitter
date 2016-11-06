@@ -48,6 +48,8 @@
         </receiver>
         <activity android:name=".activities.MainActivity"
             android:theme="@style/AppTheme"></activity>
+        <activity android:name=".activities.UserInfoActivity"
+            android:theme="@style/AppTheme"></activity>
     </application>
 
 </manifest>

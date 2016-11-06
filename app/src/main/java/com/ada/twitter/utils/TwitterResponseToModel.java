@@ -47,6 +47,9 @@ public class TwitterResponseToModel {
         modelUser.setName(resUser.getName());
         modelUser.setProfileImageUrl(resUser.getProfileImageUrl());
         modelUser.setScreenName(resUser.getScreenName());
+        modelUser.setDescription(resUser.getDescription());
+        modelUser.setFollowersCount(resUser.getFollowersCount());
+        modelUser.setFriendsCount(resUser.getFriendsCount());
         return modelUser;
     }
 
