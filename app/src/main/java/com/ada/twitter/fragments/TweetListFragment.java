@@ -19,6 +19,7 @@ import com.ada.twitter.adapters.TweetAdapter;
 import com.ada.twitter.databinding.ItemTweetBinding;
 import com.ada.twitter.models.Tweet;
 import com.ada.twitter.models.TweetListType;
+import com.ada.twitter.models.Tweet_Table;
 import com.ada.twitter.models.User;
 import com.ada.twitter.network.TwitterClient;
 import com.ada.twitter.network.TwitterSearchParam;
@@ -28,6 +29,7 @@ import com.ada.twitter.utils.TwitterResponseToModel;
 import com.ada.twitter.utils.Utils;
 import com.annimon.stream.Stream;
 import com.loopj.android.http.TextHttpResponseHandler;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import org.parceler.Parcels;
 
@@ -37,7 +39,7 @@ import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
-public class TweetListFragment extends Fragment {
+public abstract class TweetListFragment extends Fragment {
 
     public interface DataProvider {
         User getCurrentUser();
@@ -202,7 +204,8 @@ public class TweetListFragment extends Fragment {
     private boolean readItems(int page) {
         //TODO show progress bar
         mSearchParams.setPage(page);
-        mDataProvider.getClient().getHomeTimeLine(getTweetListResponseHandler(page > 0), mSearchParams);
+        mDataProvider.getClient().getTimeLine(getTweetListType(),
+                getTweetListResponseHandler(page > 0), mSearchParams);
         return true;
     }
 
@@ -280,6 +283,8 @@ public class TweetListFragment extends Fragment {
         return tweet;
     }
 
+    protected abstract TweetListType getTweetListType();
+
     //========== Tasks ============
     private class SaveTweetsInDBTask extends AsyncTask<List<Tweet>, Void, Void> {
 
@@ -291,7 +296,7 @@ public class TweetListFragment extends Fragment {
         @Override
         protected Void doInBackground(List<Tweet>... tweets) {
             Stream.of(tweets[0]).forEach(t -> {
-                t.setTweetListType(TweetListType.HOME_TIMELINE);
+                t.setTweetListType(getTweetListType());
                 t.initSurogateId();
                 t.save();});
             return null;
@@ -302,12 +307,15 @@ public class TweetListFragment extends Fragment {
 
         @Override
         protected void onPreExecute() {
-            //progressBar.setVisibility(ProgressBar.VISIBLE);
         }
 
         @Override
         protected List<Tweet> doInBackground(Void... params) {
-            return Tweet.getAll();
+            return SQLite
+                    .select()
+                    .from(Tweet.class)
+                    .where(Tweet_Table.tweet_list_type_ordinal.is(getTweetListType().ordinal()))
+                    .queryList();
         }
 
         @Override

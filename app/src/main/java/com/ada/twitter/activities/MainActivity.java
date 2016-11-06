@@ -2,6 +2,9 @@ package com.ada.twitter.activities;
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.os.PersistableBundle;
+import android.support.design.widget.TabLayout;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -12,6 +15,7 @@ import android.widget.Toast;
 
 import com.ada.twitter.R;
 import com.ada.twitter.RestApplication;
+import com.ada.twitter.adapters.TimelineFragmentAdapter;
 import com.ada.twitter.databinding.ActivityMainBinding;
 import com.ada.twitter.fragments.TweetListFragment;
 import com.ada.twitter.models.User;
@@ -24,11 +28,16 @@ import cz.msebera.android.httpclient.Header;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String CURRENT_FRAGMENT_IDX_KEY = "current_fragment_idx_key";
+
     private User mCurrentUser;
     private TwitterClient mClient;
     private Toolbar toolbar;
     private ActivityMainBinding binding;
-    private TweetListFragment mCurrentFragment;
+
+    private TimelineFragmentAdapter mFragmentAdapter;
+    private ViewPager mViewPager;
+    private int mCurrentFragmentIdx;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,28 +48,54 @@ public class MainActivity extends AppCompatActivity {
         populateCurrentUser();
         setupToolbar();
 
-        if (savedInstanceState == null) {
-            mCurrentFragment = new TweetListFragment();
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .add(R.id.fragment_container, mCurrentFragment)
-                    .commit();
-        } else {
-            mCurrentFragment = (TweetListFragment) getSupportFragmentManager()
-                    .findFragmentById(R.id.fragment_container);
-        }
-        mCurrentFragment.setDataProvider(new TweetListFragment.DataProvider() {
+        // Get the ViewPager and set it's PagerAdapter so that it can display items
+        mViewPager = binding.viewpager;
+        mFragmentAdapter = new TimelineFragmentAdapter(getSupportFragmentManager());
+        mFragmentAdapter.setFragmentDataProvider(mTweetListFragmentDataProvider);
+        mViewPager.setAdapter(mFragmentAdapter);
+
+        // Give the TabLayout the ViewPager
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.sliding_tabs);
+        tabLayout.setupWithViewPager(mViewPager);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
-            public User getCurrentUser() {
-                return mCurrentUser;
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
             }
 
             @Override
-            public TwitterClient getClient() {
-                return mClient;
+            public void onPageSelected(int position) {
+                mCurrentFragmentIdx = position;
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
             }
         });
+
+        if (savedInstanceState != null) {
+            mCurrentFragmentIdx = savedInstanceState.getInt(CURRENT_FRAGMENT_IDX_KEY);
+        }
+        mViewPager.setCurrentItem(mCurrentFragmentIdx);
     }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        outState.putInt(CURRENT_FRAGMENT_IDX_KEY, mCurrentFragmentIdx);
+    }
+
+    private final TweetListFragment.DataProvider mTweetListFragmentDataProvider =
+            new TweetListFragment.DataProvider() {
+                @Override
+                public User getCurrentUser() {
+                    return mCurrentUser;
+                }
+
+                @Override
+                public TwitterClient getClient() {
+                    return mClient;
+                }
+            };
 
     public void populateCurrentUser() {
         readCurrentUser();
@@ -87,13 +122,17 @@ public class MainActivity extends AppCompatActivity {
         Log.d("MENU OPTIONS", "itemId = " + id + ", advanced = " + android.R.id.home);
         switch (id) {
             case R.id.miNewTweet:
-                mCurrentFragment.showAddDialog();
+                getCurrentFragment().showAddDialog();
                 return false;
             case android.R.id.home:
                 return super.onOptionsItemSelected(item);
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private TweetListFragment getCurrentFragment() {
+        return (TweetListFragment) mFragmentAdapter.instantiateItem(mViewPager, mCurrentFragmentIdx);
     }
 
     private void readCurrentUser() {

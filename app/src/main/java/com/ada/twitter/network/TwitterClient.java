@@ -2,6 +2,7 @@ package com.ada.twitter.network;
 
 import android.content.Context;
 
+import com.ada.twitter.models.TweetListType;
 import com.codepath.oauth.OAuthBaseClient;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
@@ -31,8 +32,23 @@ public class TwitterClient extends OAuthBaseClient {
 		super(context, REST_API_CLASS, REST_URL, REST1_CONSUMER_KEY, REST1_CONSUMER_SECRET, REST_CALLBACK_URL);
 	}
 
-	public void getHomeTimeLine(TextHttpResponseHandler responseHandler, TwitterSearchParam params) {
-		String apiUrl = getApiUrl(GET_HOME_TIMELINE);
+	public void getTimeLine(TweetListType tweetListType, TextHttpResponseHandler responseHandler,
+							TwitterSearchParam params) {
+        String timelineUrlSuffix = null;
+        switch(tweetListType) {
+            case HOME_TIMELINE:
+                timelineUrlSuffix = GET_HOME_TIMELINE;
+                break;
+            case MENTIONS_TIMELINE:
+                timelineUrlSuffix = GET_MENTIONS_TIMELINE;
+                break;
+            case USER_TIMELINE:
+                timelineUrlSuffix = GET_USER_TIMELINE;
+                break;
+            default:
+                throw new UnsupportedOperationException("unsupported tweet list type: " + tweetListType);
+        }
+		String apiUrl = getApiUrl(timelineUrlSuffix);
 		client.get(apiUrl, prepareParams(params), responseHandler);
 	}
 
