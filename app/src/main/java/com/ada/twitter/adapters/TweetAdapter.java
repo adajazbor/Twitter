@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.ada.twitter.R;
 import com.ada.twitter.databinding.ItemTweetBinding;
 import com.ada.twitter.models.Tweet;
+import com.ada.twitter.utils.TextUtils;
 
 import java.util.List;
 
@@ -52,6 +53,8 @@ public class TweetAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         viewHolder.binding.setTweet(tweet);
         viewHolder.binding.btnLike.setImageResource(!Boolean.TRUE.equals(tweet.getFavorited()) ? R.drawable.ic_favorite_border_white_18dp : R.drawable.ic_favorite_white_18dp);
         viewHolder.binding.btnLink.setImageResource(!Boolean.TRUE.equals(tweet.getRetweeted()) ? R.drawable.ic_link_white_18dp : R.drawable.ic_link_black_18dp);
+        viewHolder.binding.tvBody.setText(tweet.getBody());
+        TextUtils.makeEmailsAddressesSelectedAndClickable(viewHolder.binding.tvBody, tweet);
         viewHolder.binding.executePendingBindings();
     }
 

@@ -13,6 +13,7 @@ import com.ada.twitter.R;
 import com.ada.twitter.databinding.FragmentDetailsTweetBinding;
 import com.ada.twitter.models.Tweet;
 import com.ada.twitter.utils.Constants;
+import com.ada.twitter.utils.TextUtils;
 
 import org.parceler.Parcels;
 
@@ -50,6 +51,8 @@ public class DetailsTweetFragment extends DialogFragment {
         Parcelable param = getArguments().getParcelable(Constants.PARAM_TWEET);
         mTweet = Parcels.unwrap(param);
         binding.setTweet(mTweet);
+        binding.etBody.setText(mTweet.getBody());
+        TextUtils.makeEmailsAddressesSelectedAndClickable(binding.etBody, mTweet);
         binding.executePendingBindings();
         return binding.getRoot();
     }

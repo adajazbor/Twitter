@@ -44,7 +44,6 @@
             android:layout_toRightOf="@id/profilePicture"
             android:layout_toEndOf="@id/profilePicture"
             android:layout_below="@id/tvUserName"
-            android:text="@{tweet.body}"
             android:autoLink="all"
             tools:text="body"
             style="@style/bodyFont"/>
