@@ -1,28 +1,24 @@
-package com.ada.twitter.activities;
+package com.ada.twitter.fragments;
 
-import android.databinding.DataBindingUtil;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.ada.twitter.R;
-import com.ada.twitter.RestApplication;
 import com.ada.twitter.adapters.TweetAdapter;
-import com.ada.twitter.databinding.ActivityTimelineBinding;
 import com.ada.twitter.databinding.ItemTweetBinding;
-import com.ada.twitter.fragments.AddTweetFragment;
-import com.ada.twitter.fragments.DetailsTweetFragment;
 import com.ada.twitter.models.Tweet;
+import com.ada.twitter.models.TweetListType;
 import com.ada.twitter.models.User;
 import com.ada.twitter.network.TwitterClient;
 import com.ada.twitter.network.TwitterSearchParam;
@@ -41,35 +37,38 @@ import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
-public class TimelineActivity extends AppCompatActivity {
+public class TweetListFragment extends Fragment {
+
+    public interface DataProvider {
+        User getCurrentUser();
+        TwitterClient getClient();
+    }
 
     private List<Tweet> mTwitts = new ArrayList<>();
-    private User mCurrentUser;
+    private RecyclerView rvItems;
     private TweetAdapter mAdapter;
     private EndlessRecycleViewScrollListener scrollListener;
     private SwipeRefreshLayout swipeContainer;
-    private TwitterSearchParam mSearchParams = new TwitterSearchParam();
-    private TwitterClient mClient;
-
     private Tweet workInProgressTweet;
+    private TwitterSearchParam mSearchParams = new TwitterSearchParam();
+    private DataProvider mDataProvider;
 
-    private RecyclerView rvItems;
-    private Toolbar toolbar;
-    private ActivityTimelineBinding binding;
+    public TweetListFragment() {
+        // default, required constructor
+    }
 
-    private static final String TAG = TimelineActivity.class.getSimpleName();
+    public void setDataProvider(DataProvider dataProvider) {
+        this.mDataProvider = dataProvider;
+    }
+
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_timeline);
-
-        mClient = RestApplication.getRestClient();
-        populateCurrentUser();
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.fragment_tweet_list, container, false);
         populateArrayItems();
-        setupToolbar();
 
-        rvItems = binding.rvItems;
-        LinearLayoutManager lLayoutManager = new LinearLayoutManager(this);
+        rvItems = (RecyclerView) rootView.findViewById(R.id.rvItems);
+        LinearLayoutManager lLayoutManager = new LinearLayoutManager(getContext());
         rvItems.setLayoutManager(lLayoutManager);
         rvItems.setAdapter(mAdapter);
         scrollListener = new EndlessRecycleViewScrollListener(lLayoutManager) {
@@ -82,9 +81,8 @@ public class TimelineActivity extends AppCompatActivity {
         // Adds the scroll listener to RecyclerView
         rvItems.addOnScrollListener(scrollListener);
 
-        swipeContainer = binding.swipeContainer;
+        swipeContainer = (SwipeRefreshLayout) rootView.findViewById(R.id.swipeContainer);
         swipeContainer.setOnRefreshListener(() -> {
-            populateCurrentUser();
             readItems();
         });
         // Configure the refreshing colors
@@ -92,12 +90,12 @@ public class TimelineActivity extends AppCompatActivity {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
-
+        return rootView;
     }
 
     public void populateArrayItems() {
         mAdapter = new TweetAdapter(
-                this,
+                getActivity(),
                 mTwitts,
                 new TweetAdapter.ItemArrayAdapterDelegate() {
                     @Override
@@ -111,12 +109,12 @@ public class TimelineActivity extends AppCompatActivity {
                         final Tweet tw = mTwitts.get(position);
                         boolean currentStatus =  !Boolean.TRUE.equals(tw.getFavorited());
                         Log.d(TAG, "try to " + currentStatus +" :" + tw.getId());
-                        mClient.likeTweet(new TextHttpResponseHandler() {
+                        mDataProvider.getClient().likeTweet(new TextHttpResponseHandler() {
                             @Override
                             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                                 Log.e(TAG, "Unable to like/unlike tweet: " + throwable.getStackTrace());
                                 binding.btnLike.setImageResource(currentStatus ? R.drawable.ic_favorite_border_white_18dp: R.drawable.ic_favorite_white_18dp);
-                                Toast.makeText(TimelineActivity.this, R.string.error_send_like, Toast.LENGTH_LONG).show();
+                                Toast.makeText(getActivity(), R.string.error_send_like, Toast.LENGTH_LONG).show();
                             }
 
                             @Override
@@ -142,11 +140,11 @@ public class TimelineActivity extends AppCompatActivity {
                         final Tweet tw = mTwitts.get(position);
                         boolean currentStatus =  !Boolean.TRUE.equals(tw.getRetweeted());
                         Log.d(TAG, "try to " + currentStatus +" :" + tw.getId());
-                        mClient.retweet(new TextHttpResponseHandler() {
+                        mDataProvider.getClient().retweet(new TextHttpResponseHandler() {
                             @Override
                             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                                 Log.e(TAG, "Unable to un/retweet: " + throwable.getMessage());
-                                Toast.makeText(TimelineActivity.this, R.string.error_send_retweet, Toast.LENGTH_LONG).show();
+                                Toast.makeText(getActivity(), R.string.error_send_retweet, Toast.LENGTH_LONG).show();
                                 binding.btnLink.setImageResource(currentStatus ? R.drawable.ic_link_white_18dp : R.drawable.ic_link_black_18dp);
                             }
 
@@ -163,47 +161,12 @@ public class TimelineActivity extends AppCompatActivity {
         readItems();
     }
 
-    public void populateCurrentUser() {
-        readCurrentUser();
-    }
-
-    private void setupToolbar() {
-        toolbar = binding.includedToolbar.toolbar;
-        setSupportActionBar(toolbar);
-    }
-    //====menu
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_timeline2, menu);
-        //miClear.setVisible(false);\
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        Log.d("MENU OPTIONS", "itemId = " + id + ", advanced = " + android.R.id.home);
-        switch (id) {
-            case R.id.miNewTweet:
-                showAddDialog();
-                return false;
-            case android.R.id.home:
-                return super.onOptionsItemSelected(item);
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
     private void showReplyDialog(Tweet parentTweet) {
         workInProgressTweet = new Tweet(parentTweet);
         showAddDialog();
     }
 
-    private void showAddDialog() {
+    public void showAddDialog() {
         AddTweetFragment dialog = AddTweetFragment.newInstance(new AddTweetFragment.OnFragmenAddTweetListener() {
             @Override
             public void onDataChanged(Parcelable parcelable) {
@@ -224,14 +187,14 @@ public class TimelineActivity extends AppCompatActivity {
                 sendTweet(tweet);
                 workInProgressTweet = null;
             }
-        }, mCurrentUser, workInProgressTweet);
-        dialog.show(getSupportFragmentManager(), "fragment_add_tweet");
+        }, mDataProvider.getCurrentUser(), workInProgressTweet);
+        dialog.show(getFragmentManager(), "fragment_add_tweet");
     }
 
     private void showDetailDialog(Tweet tweet) {
         DetailsTweetFragment dialog = DetailsTweetFragment.newInstance(new DetailsTweetFragment.OnFragmenDetailsTweetListener() {
         }, tweet);
-        dialog.show(getSupportFragmentManager(), "fragment_details_tweet");
+        dialog.show(getFragmentManager(), "fragment_details_tweet");
     }
 
     //==== data operations =========
@@ -239,7 +202,7 @@ public class TimelineActivity extends AppCompatActivity {
     private boolean readItems(int page) {
         //TODO show progress bar
         mSearchParams.setPage(page);
-        mClient.getHomeTimeLine(getTweetListResponseHandler(page > 0), mSearchParams);
+        mDataProvider.getClient().getHomeTimeLine(getTweetListResponseHandler(page > 0), mSearchParams);
         return true;
     }
 
@@ -253,9 +216,9 @@ public class TimelineActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, String res, Throwable throwable) {
                 if (!Utils.isOnline()) {
-                    Toast.makeText(TimelineActivity.this, R.string.error_network_connection_lost, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), R.string.error_network_connection_lost, Toast.LENGTH_LONG).show();
                 } else {
-                    Toast.makeText(TimelineActivity.this, throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), throwable.getLocalizedMessage(), Toast.LENGTH_LONG).show();
                 }
                 Log.e(TAG, "Cannot download data: " + throwable.getMessage());
                 new ReadTweetsFromDBTask().execute();
@@ -275,7 +238,7 @@ public class TimelineActivity extends AppCompatActivity {
                     mTwitts.addAll(TwitterResponseToModel.twitterListToModelTweet(response));
                     mAdapter.notifyDataSetChanged();
                 } else {
-                    Toast.makeText(TimelineActivity.this, R.string.error_no_results_info, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getActivity(), R.string.error_no_results_info, Toast.LENGTH_LONG).show();
                 }
                 //TODO hide progress bar
                 new SaveTweetsInDBTask().execute(mTwitts);
@@ -286,11 +249,11 @@ public class TimelineActivity extends AppCompatActivity {
 
     private void sendTweet(Tweet tweet) {
         final String TAG = "SEND_TWEET";
-        mClient.sendTweet(new TextHttpResponseHandler() {
+        mDataProvider.getClient().sendTweet(new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 Log.e(TAG, "Cannot save data: " + responseString);
-                Toast.makeText(TimelineActivity.this, R.string.error_not_saved, Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), R.string.error_not_saved, Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -298,32 +261,9 @@ public class TimelineActivity extends AppCompatActivity {
                 Log.d(TAG, "ready to parse: " + responseString);
                 saveTwitterTweetResponseInDB(responseString);
                 Log.d(TAG, "done");
-                Toast.makeText(TimelineActivity.this, R.string.info_saved, Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), R.string.info_saved, Toast.LENGTH_LONG).show();
             }
         }, tweet.getBody());
-    }
-
-    private void readCurrentUser() {
-        final String TAG = "LOAD_CURRENT_USER";
-        mClient.getLoggedUserInfo(new TextHttpResponseHandler() {
-            @Override
-            public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
-                Log.e(TAG, "Cannot download data: " + responseString);
-                if (!Utils.isOnline()) {
-                    Toast.makeText(TimelineActivity.this, R.string.error_network_connection_lost, Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                Log.d(TAG, "ready to parse: " + responseString);
-                com.ada.twitter.network.model.twitter.User user = Utils.parseJSON(responseString, com.ada.twitter.network.model.twitter.User.class);
-                mCurrentUser = TwitterResponseToModel.twitterToUserModel(user);
-                binding.setCurrentUser(mCurrentUser);
-                binding.executePendingBindings();
-                Log.d(TAG, "done");
-            }
-        });
     }
 
     private Tweet saveTwitterTweetResponseInDB(String responseString, int position) {
@@ -350,7 +290,10 @@ public class TimelineActivity extends AppCompatActivity {
 
         @Override
         protected Void doInBackground(List<Tweet>... tweets) {
-            Stream.of(tweets[0]).forEach(t -> t.save());
+            Stream.of(tweets[0]).forEach(t -> {
+                t.setTweetListType(TweetListType.HOME_TIMELINE);
+                t.initSurogateId();
+                t.save();});
             return null;
         }
     }

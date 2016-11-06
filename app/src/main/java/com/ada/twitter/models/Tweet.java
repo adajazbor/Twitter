@@ -22,6 +22,9 @@ public class Tweet extends BaseModel {
 
     @Column
     @PrimaryKey
+    String surogateId; // this.tweetListType.surogateIdPrefix + this.id
+
+    @Column
     Long id;
 
     @Column
@@ -47,6 +50,11 @@ public class Tweet extends BaseModel {
 
     @Column(name = "in_reply_to_status_id")
     Long inReplyToStatusId;
+
+    @Column(name = "tweet_list_type_ordinal")
+    Integer tweetListTypeOdrinal;
+
+    TweetListType tweetListType;
 
     Tweet inReplyToStatus;
 
@@ -75,6 +83,16 @@ public class Tweet extends BaseModel {
     public void setInReplyToStatus(Tweet inReplyToStatus) {
         this.inReplyToStatus = inReplyToStatus;
         this.inReplyToStatusId = inReplyToStatus.getId();
+    }
+
+    public void initSurogateId() {
+        if (id == null) {
+            throw new RuntimeException("id needs to be set before surogate id");
+        }
+        if (tweetListType == null) {
+            throw new RuntimeException("tweet list type needs to be set before surogate id");
+        }
+        surogateId = tweetListType.getSurogateIdPrefix() + id;
     }
 
     public Integer getRetweetCount() {
@@ -139,6 +157,15 @@ public class Tweet extends BaseModel {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public TweetListType getTweetListType() {
+        return TweetListType.values()[tweetListTypeOdrinal];
+    }
+
+    public void setTweetListType(TweetListType tweetListType) {
+        this.tweetListTypeOdrinal = tweetListType.ordinal();
+        this.tweetListType = tweetListType;
     }
 
     public String getCreatedFromNow() {

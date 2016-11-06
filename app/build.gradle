@@ -15,6 +15,7 @@ android {
         applicationId "com.ada.twitter"
         minSdkVersion 16
         targetSdkVersion 23
+        multiDexEnabled true
     }
 
     // Related to https://github.com/scribejava/scribejava/issues/480
@@ -34,6 +35,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    dexOptions {
+        javaMaxHeapSize "4g"
+    }
 }
 
 repositories {
@@ -52,8 +57,9 @@ dependencies {
     compile "com.github.Raizlabs.DBFlow:dbflow-core:${dbflow_version}"
     compile "com.github.Raizlabs.DBFlow:dbflow:${dbflow_version}"
     compile 'com.android.support:appcompat-v7:23.4.0'
-    compile 'com.codepath.libraries:android-oauth-handler:1.1.0'
+    //hide toolbar when scrolling
     compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.codepath.libraries:android-oauth-handler:1.1.0'
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'jp.wasabeef:glide-transformations:1.0.6'
     compile 'com.loopj.android:android-async-http:1.4.9'
@@ -68,7 +74,6 @@ dependencies {
     compile 'com.google.android.gms:play-services:9.4.0'
     compile 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
     compile 'com.android.support:support-v4:23.4.0'
-    apt 'org.parceler:parceler:1.1.1'
-    //hide toolbar when scrolling
     compile 'com.android.support:design:23.4.0'
+    apt 'org.parceler:parceler:1.1.1'
 }

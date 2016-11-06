@@ -10,14 +10,16 @@ import org.scribe.builder.api.Api;
 import org.scribe.builder.api.TwitterApi;
 
 public class TwitterClient extends OAuthBaseClient {
-	public static final Class<? extends Api> REST_API_CLASS = TwitterApi.class;
-	public static final String REST_URL = "https://api.twitter.com/1.1";
-	public static final String REST_CALLBACK_URL = "oauth://cpadatwitter";
-	public static final String REST1_CONSUMER_KEY = "VkGqGdKUhqm4OwRJrTpS0pm6f";
-	public static final String REST1_CONSUMER_SECRET = "7Cszh56nuHEZ5hOY0T5n4vOUj8WiNINBLCDztAZgR93GkeFdWM";
-	public static final String REST2_CONSUMER_KEY = "xvFxsSAdwI6l0V4GDVKCJR8dm";
-	public static final String REST2_CONSUMER_SECRET = "dpqjuMXItnDoQehjjiQ8ZE9EsxkrAz2BYY2nrjK73KHgDnHavZ";
-	private static final String GET_TWITTER_TIMELINE = "/statuses/home_timeline.json";
+	private static final Class<? extends Api> REST_API_CLASS = TwitterApi.class;
+	private static final String REST_URL = "https://api.twitter.com/1.1";
+	private static final String REST_CALLBACK_URL = "oauth://cpadatwitter";
+	private static final String REST1_CONSUMER_KEY = "VkGqGdKUhqm4OwRJrTpS0pm6f";
+	private static final String REST1_CONSUMER_SECRET = "7Cszh56nuHEZ5hOY0T5n4vOUj8WiNINBLCDztAZgR93GkeFdWM";
+	private static final String REST2_CONSUMER_KEY = "xvFxsSAdwI6l0V4GDVKCJR8dm";
+	private static final String REST2_CONSUMER_SECRET = "dpqjuMXItnDoQehjjiQ8ZE9EsxkrAz2BYY2nrjK73KHgDnHavZ";
+	private static final String GET_HOME_TIMELINE = "/statuses/home_timeline.json";
+	private static final String GET_MENTIONS_TIMELINE = "/statuses/mentions_timeline.json";
+	private static final String GET_USER_TIMELINE = "/statuses/user_timeline.json";
 	private static final String GET_TWITTER_LOGGED_USER = "/account/verify_credentials.json";
 	private static final String POST_TWITTER_ADD_TWEET = "/statuses/update.json";
 	private static final String POST_TWITTER_LIKE_TWEET = "/favorites/create.json";
@@ -30,7 +32,7 @@ public class TwitterClient extends OAuthBaseClient {
 	}
 
 	public void getHomeTimeLine(TextHttpResponseHandler responseHandler, TwitterSearchParam params) {
-		String apiUrl = getApiUrl(GET_TWITTER_TIMELINE);
+		String apiUrl = getApiUrl(GET_HOME_TIMELINE);
 		client.get(apiUrl, prepareParams(params), responseHandler);
 	}
 
@@ -46,9 +48,9 @@ public class TwitterClient extends OAuthBaseClient {
 
 	public void likeTweet(TextHttpResponseHandler responseHandler, Long id, boolean currentlyLike) {
 		if (currentlyLike) {
-			unlikeTweet(responseHandler, id);
-		} else {
 			likeTweet(responseHandler, id);
+		} else {
+			unlikeTweet(responseHandler, id);
 		}
 	}
 

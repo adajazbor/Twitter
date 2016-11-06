@@ -46,7 +46,7 @@
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-        <activity android:name=".activities.TimelineActivity"
+        <activity android:name=".activities.MainActivity"
             android:theme="@style/AppTheme"></activity>
     </application>
 
