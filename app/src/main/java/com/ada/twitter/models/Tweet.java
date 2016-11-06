@@ -22,7 +22,7 @@ public class Tweet extends BaseModel {
 
     @Column
     @PrimaryKey
-    String surogateId; // this.tweetListType.surogateIdPrefix + this.id
+    String surogateId; // this.tweetListType.surogateIdPrefix + this.user.id + this.id
 
     @Column
     Long id;
@@ -92,7 +92,10 @@ public class Tweet extends BaseModel {
         if (tweetListType == null) {
             throw new RuntimeException("tweet list type needs to be set before surogate id");
         }
-        surogateId = tweetListType.getSurogateIdPrefix() + id;
+        if (user == null) {
+            throw new RuntimeException("user needs to be set before surogate id");
+        }
+        surogateId = tweetListType.getSurogateIdPrefix() + user.getId() + id;
     }
 
     public Integer getRetweetCount() {

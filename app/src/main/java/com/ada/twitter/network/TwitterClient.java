@@ -29,14 +29,14 @@ public class TwitterClient extends OAuthBaseClient {
 	private static final String POST_TWITTER_UNRETWEET = "/statuses/unretweet/%d.json";
     private static final String USERS_SHOW = "/users/show.json?user_id=%d";
 
-	public TwitterClient(Context context) {
-		super(context, REST_API_CLASS, REST_URL, REST1_CONSUMER_KEY, REST1_CONSUMER_SECRET, REST_CALLBACK_URL);
-	}
+    public TwitterClient(Context context) {
+        super(context, REST_API_CLASS, REST_URL, REST1_CONSUMER_KEY, REST1_CONSUMER_SECRET, REST_CALLBACK_URL);
+    }
 
-	public void getTimeLine(TweetListType tweetListType, TextHttpResponseHandler responseHandler,
-							TwitterSearchParam params) {
+    public void getTimeLine(TweetListType tweetListType, TextHttpResponseHandler responseHandler,
+                            TwitterSearchParam params) {
         String timelineUrlSuffix = null;
-        switch(tweetListType) {
+        switch (tweetListType) {
             case HOME_TIMELINE:
                 timelineUrlSuffix = GET_HOME_TIMELINE;
                 break;
@@ -49,9 +49,9 @@ public class TwitterClient extends OAuthBaseClient {
             default:
                 throw new UnsupportedOperationException("unsupported tweet list type: " + tweetListType);
         }
-		String apiUrl = getApiUrl(timelineUrlSuffix);
-		client.get(apiUrl, prepareParams(params), responseHandler);
-	}
+        String apiUrl = getApiUrl(timelineUrlSuffix);
+        client.get(apiUrl, prepareParams(params, tweetListType == TweetListType.USER_TIMELINE), responseHandler);
+    }
 
 	public void getLoggedUserInfo(TextHttpResponseHandler responseHandler) {
 		client.get(getApiUrl(GET_TWITTER_LOGGED_USER), responseHandler);
@@ -105,7 +105,7 @@ public class TwitterClient extends OAuthBaseClient {
 		client.post(getApiUrl(String.format(POST_TWITTER_UNRETWEET, id)), responseHandler);
 	}
 
-	private RequestParams prepareParams(TwitterSearchParam params) {
+	private RequestParams prepareParams(TwitterSearchParam params, boolean addUserId) {
 		RequestParams rParams = new RequestParams();
 		rParams.put("count", params.getCount());
 		if (params.getPage() > 0) {
@@ -113,6 +113,9 @@ public class TwitterClient extends OAuthBaseClient {
 		} else {
 			rParams.put("since_id", params.getSinceId());
 		}
+        if (addUserId) {
+            rParams.put("user_id", params.getUserId());
+        }
 		return rParams;
 	}
 

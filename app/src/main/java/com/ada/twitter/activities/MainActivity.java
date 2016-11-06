@@ -1,5 +1,7 @@
 package com.ada.twitter.activities;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -30,6 +32,7 @@ import cz.msebera.android.httpclient.Header;
 public class MainActivity extends AppCompatActivity implements TweetListFragment.TweetListFragmentHost {
 
     private static final String CURRENT_FRAGMENT_IDX_KEY = "current_fragment_idx_key";
+    private static final String CURRENT_USER_ID_SHARED_PREF_KEY = "current_user_id_shared_pref_key";
 
     private User mCurrentUser;
     private TwitterClient mClient;
@@ -49,6 +52,21 @@ public class MainActivity extends AppCompatActivity implements TweetListFragment
         populateCurrentUser();
         setupToolbar();
 
+        initializeDummyCurrentUserSharedPreferences();
+
+        if (mCurrentUser != null) {
+            initializeTabs();
+        }
+
+        if (savedInstanceState != null) {
+            mCurrentFragmentIdx = savedInstanceState.getInt(CURRENT_FRAGMENT_IDX_KEY);
+        }
+    }
+
+    public void initializeTabs() {
+        if (mViewPager != null) {
+            return;
+        }
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         mViewPager = binding.viewpager;
         mFragmentAdapter = new TimelineFragmentAdapter(getSupportFragmentManager());
@@ -71,10 +89,6 @@ public class MainActivity extends AppCompatActivity implements TweetListFragment
             public void onPageScrollStateChanged(int state) {
             }
         });
-
-        if (savedInstanceState != null) {
-            mCurrentFragmentIdx = savedInstanceState.getInt(CURRENT_FRAGMENT_IDX_KEY);
-        }
         mViewPager.setCurrentItem(mCurrentFragmentIdx);
     }
 
@@ -138,6 +152,8 @@ public class MainActivity extends AppCompatActivity implements TweetListFragment
                 Log.d(TAG, "ready to parse: " + responseString);
                 com.ada.twitter.network.model.twitter.User user = Utils.parseJSON(responseString, com.ada.twitter.network.model.twitter.User.class);
                 mCurrentUser = TwitterResponseToModel.twitterToUserModel(user);
+                saveCurrentUserIdToSharedPreferences();
+                initializeTabs();
                 binding.setCurrentUser(mCurrentUser);
                 View.OnClickListener userDetailsOpenListener =
                         v -> UserInfoActivity.startActivity(MainActivity.this, mCurrentUser);
@@ -150,12 +166,26 @@ public class MainActivity extends AppCompatActivity implements TweetListFragment
     }
 
     @Override
-    public User getCurrentUser() {
+    public User getUser() {
         return mCurrentUser;
     }
 
     @Override
     public TwitterClient getClient() {
         return mClient;
+    }
+
+    private void saveCurrentUserIdToSharedPreferences() {
+        SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
+        editor.putLong(CURRENT_FRAGMENT_IDX_KEY, mCurrentUser.getId());
+        editor.commit();
+    }
+
+    private void initializeDummyCurrentUserSharedPreferences() {
+        long userId = getPreferences(Context.MODE_PRIVATE).getLong(CURRENT_USER_ID_SHARED_PREF_KEY, -1);
+        if (userId != -1) {
+            mCurrentUser = new User();
+            mCurrentUser.setId(userId);
+        }
     }
 }

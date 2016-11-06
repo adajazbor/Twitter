@@ -3,13 +3,13 @@ package com.ada.twitter.network;
 /**
  * Created by ada on 10/28/16.
  */
-
 public class TwitterSearchParam {
 
     private int count = 25;
     private long sinceId = 1;
     private int page = 0;
     private long maxId = -1;
+    private long userId;
 
     public int getPage() {
         return page;
@@ -41,5 +41,13 @@ public class TwitterSearchParam {
 
     public void setMaxId(long maxId) {
         this.maxId = maxId;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 }

@@ -43,7 +43,7 @@ import cz.msebera.android.httpclient.Header;
 public abstract class TweetListFragment extends Fragment {
 
     public interface TweetListFragmentHost {
-        User getCurrentUser();
+        User getUser();
         TwitterClient getClient();
     }
 
@@ -63,7 +63,8 @@ public abstract class TweetListFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_tweet_list, container, false);
-        populateArrayItems();
+
+        setupRecyclerViewAdapter();
 
         rvItems = (RecyclerView) rootView.findViewById(R.id.rvItems);
         LinearLayoutManager lLayoutManager = new LinearLayoutManager(getContext());
@@ -88,6 +89,14 @@ public abstract class TweetListFragment extends Fragment {
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
+
+        swipeContainer.post(new Runnable() {
+            @Override
+            public void run() {
+                swipeContainer.setRefreshing(true);
+                readItems();
+            }
+        });
         return rootView;
     }
 
@@ -95,7 +104,7 @@ public abstract class TweetListFragment extends Fragment {
         return (TweetListFragmentHost) getActivity();
     }
 
-    public void populateArrayItems() {
+    private void setupRecyclerViewAdapter() {
         mAdapter = new TweetAdapter(
                 getActivity(),
                 mTwitts,
@@ -164,7 +173,6 @@ public abstract class TweetListFragment extends Fragment {
                         UserInfoActivity.startActivity(getActivity(), mTwitts.get(position).getUser());
                     }
                 });
-        readItems();
     }
 
     private void showReplyDialog(Tweet parentTweet) {
@@ -193,7 +201,7 @@ public abstract class TweetListFragment extends Fragment {
                 sendTweet(tweet);
                 workInProgressTweet = null;
             }
-        }, getFragmentHost().getCurrentUser(), workInProgressTweet);
+        }, getFragmentHost().getUser(), workInProgressTweet);
         dialog.show(getFragmentManager(), "fragment_add_tweet");
     }
 
@@ -208,6 +216,7 @@ public abstract class TweetListFragment extends Fragment {
     private boolean readItems(int page) {
         //TODO show progress bar
         mSearchParams.setPage(page);
+        mSearchParams.setUserId(getFragmentHost().getUser().getId());
         getFragmentHost().getClient().getTimeLine(getTweetListType(),
                 getTweetListResponseHandler(page > 0), mSearchParams);
         return true;
@@ -319,7 +328,10 @@ public abstract class TweetListFragment extends Fragment {
             return SQLite
                     .select()
                     .from(Tweet.class)
-                    .where(Tweet_Table.tweet_list_type_ordinal.is(getTweetListType().ordinal()))
+                    .where(
+                            Tweet_Table.tweet_list_type_ordinal.is(getTweetListType().ordinal()))
+                    .and(
+                            Tweet_Table.user_id.is(getFragmentHost().getUser().getId()))
                     .queryList();
         }
 
