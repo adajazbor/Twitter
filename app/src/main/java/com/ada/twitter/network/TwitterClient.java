@@ -14,10 +14,10 @@ public class TwitterClient extends OAuthBaseClient {
 	private static final Class<? extends Api> REST_API_CLASS = TwitterApi.class;
 	private static final String REST_URL = "https://api.twitter.com/1.1";
 	private static final String REST_CALLBACK_URL = "oauth://cpadatwitter";
-	private static final String REST1_CONSUMER_KEY = "VkGqGdKUhqm4OwRJrTpS0pm6f";
-	private static final String REST1_CONSUMER_SECRET = "7Cszh56nuHEZ5hOY0T5n4vOUj8WiNINBLCDztAZgR93GkeFdWM";
-	private static final String REST2_CONSUMER_KEY = "xvFxsSAdwI6l0V4GDVKCJR8dm";
-	private static final String REST2_CONSUMER_SECRET = "dpqjuMXItnDoQehjjiQ8ZE9EsxkrAz2BYY2nrjK73KHgDnHavZ";
+	private static final String REST2_CONSUMER_KEY = "VkGqGdKUhqm4OwRJrTpS0pm6f";
+	private static final String REST2_CONSUMER_SECRET = "7Cszh56nuHEZ5hOY0T5n4vOUj8WiNINBLCDztAZgR93GkeFdWM";
+	private static final String REST1_CONSUMER_KEY = "xvFxsSAdwI6l0V4GDVKCJR8dm";
+	private static final String REST1_CONSUMER_SECRET = "dpqjuMXItnDoQehjjiQ8ZE9EsxkrAz2BYY2nrjK73KHgDnHavZ";
 	private static final String GET_HOME_TIMELINE = "/statuses/home_timeline.json";
 	private static final String GET_MENTIONS_TIMELINE = "/statuses/mentions_timeline.json";
 	private static final String GET_USER_TIMELINE = "/statuses/user_timeline.json";

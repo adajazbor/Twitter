@@ -26,7 +26,7 @@ import com.loopj.android.http.TextHttpResponseHandler;
 
 import cz.msebera.android.httpclient.Header;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements TweetListFragment.TweetListFragmentHost {
 
     private static final String CURRENT_FRAGMENT_IDX_KEY = "current_fragment_idx_key";
 
@@ -51,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         mViewPager = binding.viewpager;
         mFragmentAdapter = new TimelineFragmentAdapter(getSupportFragmentManager());
-        mFragmentAdapter.setFragmentDataProvider(mTweetListFragmentDataProvider);
         mViewPager.setAdapter(mFragmentAdapter);
 
         // Give the TabLayout the ViewPager
@@ -83,19 +82,6 @@ public class MainActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState, outPersistentState);
         outState.putInt(CURRENT_FRAGMENT_IDX_KEY, mCurrentFragmentIdx);
     }
-
-    private final TweetListFragment.DataProvider mTweetListFragmentDataProvider =
-            new TweetListFragment.DataProvider() {
-                @Override
-                public User getCurrentUser() {
-                    return mCurrentUser;
-                }
-
-                @Override
-                public TwitterClient getClient() {
-                    return mClient;
-                }
-            };
 
     public void populateCurrentUser() {
         readCurrentUser();
@@ -156,5 +142,15 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "done");
             }
         });
+    }
+
+    @Override
+    public User getCurrentUser() {
+        return mCurrentUser;
+    }
+
+    @Override
+    public TwitterClient getClient() {
+        return mClient;
     }
 }

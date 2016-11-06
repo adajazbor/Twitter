@@ -41,7 +41,7 @@ import cz.msebera.android.httpclient.Header;
 
 public abstract class TweetListFragment extends Fragment {
 
-    public interface DataProvider {
+    public interface TweetListFragmentHost {
         User getCurrentUser();
         TwitterClient getClient();
     }
@@ -53,14 +53,9 @@ public abstract class TweetListFragment extends Fragment {
     private SwipeRefreshLayout swipeContainer;
     private Tweet workInProgressTweet;
     private TwitterSearchParam mSearchParams = new TwitterSearchParam();
-    private DataProvider mDataProvider;
 
     public TweetListFragment() {
         // default, required constructor
-    }
-
-    public void setDataProvider(DataProvider dataProvider) {
-        this.mDataProvider = dataProvider;
     }
 
     @Nullable
@@ -95,6 +90,10 @@ public abstract class TweetListFragment extends Fragment {
         return rootView;
     }
 
+    private TweetListFragmentHost getFragmentHost() {
+        return (TweetListFragmentHost) getActivity();
+    }
+
     public void populateArrayItems() {
         mAdapter = new TweetAdapter(
                 getActivity(),
@@ -111,7 +110,7 @@ public abstract class TweetListFragment extends Fragment {
                         final Tweet tw = mTwitts.get(position);
                         boolean currentStatus =  !Boolean.TRUE.equals(tw.getFavorited());
                         Log.d(TAG, "try to " + currentStatus +" :" + tw.getId());
-                        mDataProvider.getClient().likeTweet(new TextHttpResponseHandler() {
+                        getFragmentHost().getClient().likeTweet(new TextHttpResponseHandler() {
                             @Override
                             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                                 Log.e(TAG, "Unable to like/unlike tweet: " + throwable.getStackTrace());
@@ -142,7 +141,7 @@ public abstract class TweetListFragment extends Fragment {
                         final Tweet tw = mTwitts.get(position);
                         boolean currentStatus =  !Boolean.TRUE.equals(tw.getRetweeted());
                         Log.d(TAG, "try to " + currentStatus +" :" + tw.getId());
-                        mDataProvider.getClient().retweet(new TextHttpResponseHandler() {
+                        getFragmentHost().getClient().retweet(new TextHttpResponseHandler() {
                             @Override
                             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                                 Log.e(TAG, "Unable to un/retweet: " + throwable.getMessage());
@@ -189,7 +188,7 @@ public abstract class TweetListFragment extends Fragment {
                 sendTweet(tweet);
                 workInProgressTweet = null;
             }
-        }, mDataProvider.getCurrentUser(), workInProgressTweet);
+        }, getFragmentHost().getCurrentUser(), workInProgressTweet);
         dialog.show(getFragmentManager(), "fragment_add_tweet");
     }
 
@@ -204,7 +203,7 @@ public abstract class TweetListFragment extends Fragment {
     private boolean readItems(int page) {
         //TODO show progress bar
         mSearchParams.setPage(page);
-        mDataProvider.getClient().getTimeLine(getTweetListType(),
+        getFragmentHost().getClient().getTimeLine(getTweetListType(),
                 getTweetListResponseHandler(page > 0), mSearchParams);
         return true;
     }
@@ -252,7 +251,7 @@ public abstract class TweetListFragment extends Fragment {
 
     private void sendTweet(Tweet tweet) {
         final String TAG = "SEND_TWEET";
-        mDataProvider.getClient().sendTweet(new TextHttpResponseHandler() {
+        getFragmentHost().getClient().sendTweet(new TextHttpResponseHandler() {
             @Override
             public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                 Log.e(TAG, "Cannot save data: " + responseString);
