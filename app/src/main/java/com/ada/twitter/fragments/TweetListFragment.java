@@ -328,10 +328,8 @@ public abstract class TweetListFragment extends Fragment {
             return SQLite
                     .select()
                     .from(Tweet.class)
-                    .where(
-                            Tweet_Table.tweet_list_type_ordinal.is(getTweetListType().ordinal()))
-                    .and(
-                            Tweet_Table.user_id.is(getFragmentHost().getUser().getId()))
+                    .where(Tweet_Table.tweet_list_type_ordinal.is(getTweetListType().ordinal()))
+                    .and(Tweet_Table.user_id.is(getFragmentHost().getUser().getId()))
                     .queryList();
         }
 

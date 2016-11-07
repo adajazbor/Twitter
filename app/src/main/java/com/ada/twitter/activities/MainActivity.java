@@ -167,6 +167,7 @@ public class MainActivity extends AppCompatActivity implements TweetListFragment
 
     @Override
     public User getUser() {
+        initializeDummyCurrentUserSharedPreferences();
         return mCurrentUser;
     }
 
@@ -177,11 +178,14 @@ public class MainActivity extends AppCompatActivity implements TweetListFragment
 
     private void saveCurrentUserIdToSharedPreferences() {
         SharedPreferences.Editor editor = getPreferences(Context.MODE_PRIVATE).edit();
-        editor.putLong(CURRENT_FRAGMENT_IDX_KEY, mCurrentUser.getId());
+        editor.putLong(CURRENT_USER_ID_SHARED_PREF_KEY, mCurrentUser.getId());
         editor.commit();
     }
 
     private void initializeDummyCurrentUserSharedPreferences() {
+        if (mCurrentUser != null) {
+            return;
+        }
         long userId = getPreferences(Context.MODE_PRIVATE).getLong(CURRENT_USER_ID_SHARED_PREF_KEY, -1);
         if (userId != -1) {
             mCurrentUser = new User();
