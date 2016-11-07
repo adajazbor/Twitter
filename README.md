@@ -47,6 +47,10 @@ The following **additional** features are implemented:
 
 Here's a walkthrough of implemented user stories:
 
+<video width="320" height="240" controls>
+                                                    <source src="https://www.dropbox.com/s/1wnx67dpnskfwq0/yZ3WrXg.gif?raw=" type="image/gif">
+                                                    Your browser does not support the video tag. Vidoe URL: https://www.dropbox.com/s/1wnx67dpnskfwq0/yZ3WrXg.gif?raw=1
+
 <img src='https://www.dropbox.com/s/1wnx67dpnskfwq0/yZ3WrXg.gif?raw=1' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 GIF created with [LiceCap](http://www.cockos.com/licecap/).
